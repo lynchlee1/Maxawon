@@ -4,6 +4,24 @@
 
 ## 실행
 
+### Electron 데스크탑 UI
+
+```powershell
+pip install -e .
+npm install
+npm run desktop
+```
+
+Electron UI는 최신 데스크탑 앱 구조로 구성된 기본 실행 경로입니다. 화면은 Electron renderer가 담당하고, Chrome 실행/파일 선택/조건검색 테이블 복사 같은 기존 Python 기능은 Electron main process에서 Python 모듈을 호출해 재사용합니다.
+
+개발자 도구를 함께 열려면 다음 명령을 사용합니다.
+
+```powershell
+npm run desktop:dev
+```
+
+### 기존 Tkinter UI
+
 ```powershell
 pip install -e .
 python -m cretop_data_reader

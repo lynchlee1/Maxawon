@@ -24,6 +24,18 @@ PROFILE_DIR = PROJECT_ROOT / ".chrome-profile"
 DEFAULT_CAPTURE_OUTPUT = PROJECT_ROOT / "output" / "cretop_condition_search.csv"
 REMOTE_DEBUGGING_PORT = "9222"
 
+COLOR_BG = "#eef2f7"
+COLOR_SURFACE = "#ffffff"
+COLOR_SURFACE_MUTED = "#f8fafc"
+COLOR_BORDER = "#d7dde8"
+COLOR_TEXT = "#172033"
+COLOR_MUTED = "#667085"
+COLOR_ACCENT = "#2563eb"
+COLOR_ACCENT_ACTIVE = "#1d4ed8"
+COLOR_SIDEBAR = "#111827"
+COLOR_SIDEBAR_ACTIVE = "#1f2937"
+COLOR_SIDEBAR_TEXT = "#e5e7eb"
+
 
 def find_chrome() -> str | None:
     system = platform.system()
@@ -108,164 +120,281 @@ class CretopDataReaderApp:
         self.capture_status = StringVar(value="대기 중")
         self.capture_output_status = StringVar(value=str(self.capture_output_path))
         self.capture_max_pages = StringVar(value="30")
+        self.nav_buttons: dict[str, ttk.Button] = {}
+        self.views: dict[str, ttk.Frame] = {}
 
         self._build()
 
     def _build(self) -> None:
+        self._configure_style()
+
+        self.root.configure(bg=COLOR_BG)
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(1, weight=1)
 
-        top = ttk.Frame(self.root, padding=16)
+        top = ttk.Frame(self.root, padding=(24, 20, 24, 16), style="App.TFrame")
         top.grid(row=0, column=0, sticky="ew")
         top.columnconfigure(1, weight=1)
 
-        ttk.Label(top, text="Cretop Data Reader", font=("", 16, "bold")).grid(
-            row=0, column=0, columnspan=3, sticky="w"
+        ttk.Label(top, text="Cretop Data Reader", style="Title.TLabel").grid(
+            row=0, column=0, sticky="w"
         )
-        ttk.Label(top, text="수동 로그인 후 엑셀 검색 대상을 처리하는 업무용 도구").grid(
-            row=1, column=0, columnspan=3, sticky="w", pady=(4, 0)
+        ttk.Label(top, text="수동 로그인 기반의 Cretop 업무 자동화 콘솔", style="Muted.TLabel").grid(
+            row=1, column=0, sticky="w", pady=(6, 0)
         )
 
-        notebook = ttk.Notebook(self.root)
-        notebook.grid(row=1, column=0, sticky="nsew", padx=16)
+        body = ttk.Frame(self.root, padding=(24, 0), style="App.TFrame")
+        body.grid(row=1, column=0, sticky="nsew")
+        body.columnconfigure(1, weight=1)
+        body.rowconfigure(0, weight=1)
 
-        session_tab = ttk.Frame(notebook, padding=12)
-        capture_tab = ttk.Frame(notebook, padding=12)
-        excel_tab = ttk.Frame(notebook, padding=12)
-        notebook.add(session_tab, text="세션")
-        notebook.add(capture_tab, text="조건검색 복사")
-        notebook.add(excel_tab, text="엑셀 처리")
+        sidebar = ttk.Frame(body, padding=(14, 16), style="Sidebar.TFrame")
+        sidebar.grid(row=0, column=0, sticky="ns", padx=(0, 16))
 
+        content = ttk.Frame(body, style="App.TFrame")
+        content.grid(row=0, column=1, sticky="nsew")
+        content.columnconfigure(0, weight=1)
+        content.rowconfigure(0, weight=1)
+
+        session_tab = ttk.Frame(content, padding=0, style="App.TFrame")
+        capture_tab = ttk.Frame(content, padding=0, style="App.TFrame")
+        excel_tab = ttk.Frame(content, padding=0, style="App.TFrame")
+        for name, frame in (
+            ("session", session_tab),
+            ("capture", capture_tab),
+            ("excel", excel_tab),
+        ):
+            frame.grid(row=0, column=0, sticky="nsew")
+            self.views[name] = frame
+
+        self._build_sidebar(sidebar)
         self._build_session_tab(session_tab)
         self._build_capture_tab(capture_tab)
         self._build_excel_tab(excel_tab)
+        self._show_view("session")
 
-        log_frame = ttk.LabelFrame(self.root, text="로그", padding=10)
-        log_frame.grid(row=2, column=0, sticky="ew", padx=16, pady=16)
+        log_frame = ttk.Frame(self.root, padding=16, style="Card.TFrame")
+        log_frame.grid(row=2, column=0, sticky="ew", padx=24, pady=(16, 24))
         log_frame.columnconfigure(0, weight=1)
 
-        self.log = ttk.Treeview(log_frame, columns=("message",), show="headings", height=6)
+        ttk.Label(log_frame, text="활동 로그", style="CardTitle.TLabel").grid(
+            row=0, column=0, sticky="w", pady=(0, 10)
+        )
+        self.log = ttk.Treeview(log_frame, columns=("message",), show="headings", height=5)
         self.log.heading("message", text="메시지")
         self.log.column("message", width=900, stretch=True)
-        self.log.grid(row=0, column=0, sticky="ew")
+        self.log.grid(row=1, column=0, sticky="ew")
 
         self._set_excel_start_enabled()
         self.add_log("Chrome을 열고 직접 로그인한 뒤 '로그인 완료'를 누르세요.")
         self.check_scrapling_status(show_popup=False)
 
+    def _configure_style(self) -> None:
+        style = ttk.Style(self.root)
+        if "clam" in style.theme_names():
+            style.theme_use("clam")
+
+        style.configure(".", font=("", 13), background=COLOR_BG, foreground=COLOR_TEXT)
+        style.configure("App.TFrame", background=COLOR_BG)
+        style.configure("Card.TFrame", background=COLOR_SURFACE, borderwidth=1, relief="solid")
+        style.configure("Sidebar.TFrame", background=COLOR_SIDEBAR)
+        style.configure("TLabel", background=COLOR_BG, foreground=COLOR_TEXT)
+        style.configure("Title.TLabel", background=COLOR_BG, foreground=COLOR_TEXT, font=("", 24, "bold"))
+        style.configure("Muted.TLabel", background=COLOR_BG, foreground=COLOR_MUTED, font=("", 13))
+        style.configure("CardTitle.TLabel", background=COLOR_SURFACE, foreground=COLOR_TEXT, font=("", 15, "bold"))
+        style.configure("CardMuted.TLabel", background=COLOR_SURFACE, foreground=COLOR_MUTED, font=("", 12))
+        style.configure("Field.TLabel", background=COLOR_SURFACE, foreground=COLOR_MUTED, font=("", 12))
+        style.configure("Value.TLabel", background=COLOR_SURFACE, foreground=COLOR_TEXT, font=("", 13, "bold"))
+        style.configure("SidebarTitle.TLabel", background=COLOR_SIDEBAR, foreground=COLOR_SIDEBAR_TEXT, font=("", 13, "bold"))
+        style.configure("SidebarMuted.TLabel", background=COLOR_SIDEBAR, foreground="#9ca3af", font=("", 11))
+
+        style.configure("TButton", padding=(14, 8), borderwidth=0, focusthickness=0)
+        style.configure("Accent.TButton", background=COLOR_ACCENT, foreground="#ffffff")
+        style.map("Accent.TButton", background=[("active", COLOR_ACCENT_ACTIVE), ("disabled", "#9ca3af")])
+        style.configure("Secondary.TButton", background=COLOR_SURFACE_MUTED, foreground=COLOR_TEXT)
+        style.map("Secondary.TButton", background=[("active", "#e5e7eb")])
+        style.configure("Nav.TButton", anchor="w", padding=(12, 10), background=COLOR_SIDEBAR, foreground=COLOR_SIDEBAR_TEXT)
+        style.configure("NavActive.TButton", anchor="w", padding=(12, 10), background=COLOR_SIDEBAR_ACTIVE, foreground="#ffffff")
+        style.map("Nav.TButton", background=[("active", COLOR_SIDEBAR_ACTIVE)])
+        style.map("NavActive.TButton", background=[("active", COLOR_SIDEBAR_ACTIVE)])
+
+        style.configure("TSpinbox", fieldbackground=COLOR_SURFACE, bordercolor=COLOR_BORDER, lightcolor=COLOR_BORDER, darkcolor=COLOR_BORDER)
+        style.configure(
+            "Treeview",
+            background=COLOR_SURFACE,
+            fieldbackground=COLOR_SURFACE,
+            foreground=COLOR_TEXT,
+            bordercolor=COLOR_BORDER,
+            rowheight=30,
+        )
+        style.configure("Treeview.Heading", background=COLOR_SURFACE_MUTED, foreground=COLOR_MUTED, font=("", 12, "bold"))
+        style.map("Treeview", background=[("selected", "#dbeafe")], foreground=[("selected", COLOR_TEXT)])
+
+    def _build_sidebar(self, parent: ttk.Frame) -> None:
+        parent.columnconfigure(0, weight=1)
+
+        ttk.Label(parent, text="WORKSPACE", style="SidebarMuted.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(parent, text="Cretop", style="SidebarTitle.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 18))
+
+        nav_items = [
+            ("session", "세션 연결"),
+            ("capture", "조건검색 복사"),
+            ("excel", "엑셀 처리"),
+        ]
+        for row, (name, label) in enumerate(nav_items, start=2):
+            button = ttk.Button(
+                parent,
+                text=label,
+                style="Nav.TButton",
+                command=lambda view=name: self._show_view(view),
+                width=18,
+            )
+            button.grid(row=row, column=0, sticky="ew", pady=(0, 8))
+            self.nav_buttons[name] = button
+
+    def _show_view(self, name: str) -> None:
+        self.views[name].tkraise()
+        for view_name, button in self.nav_buttons.items():
+            button.configure(style="NavActive.TButton" if view_name == name else "Nav.TButton")
+
+    def _make_card(self, parent: ttk.Frame, title: str, description: str | None = None) -> ttk.Frame:
+        card = ttk.Frame(parent, padding=18, style="Card.TFrame")
+        card.columnconfigure(0, weight=1)
+        ttk.Label(card, text=title, style="CardTitle.TLabel").grid(row=0, column=0, sticky="w")
+        if description is not None:
+            ttk.Label(card, text=description, style="CardMuted.TLabel").grid(
+                row=1, column=0, sticky="w", pady=(4, 14)
+            )
+        return card
+
     def _build_session_tab(self, parent: ttk.Frame) -> None:
         parent.columnconfigure(0, weight=1)
 
-        actions = ttk.Frame(parent)
+        actions = self._make_card(
+            parent,
+            "세션 연결",
+            "Chrome을 원격 디버깅 모드로 열고, 로그인은 사용자가 직접 완료합니다.",
+        )
         actions.grid(row=0, column=0, sticky="ew")
-        actions.columnconfigure(3, weight=1)
+        actions.columnconfigure(2, weight=1)
 
-        ttk.Button(actions, text="Chrome 열기", command=self.open_chrome).grid(
-            row=0, column=0, padx=(0, 8), sticky="w"
+        ttk.Button(actions, text="Chrome 열기", style="Accent.TButton", command=self.open_chrome).grid(
+            row=2, column=0, padx=(0, 8), sticky="w"
         )
-        ttk.Button(actions, text="로그인 완료", command=self.mark_login_done).grid(
-            row=0, column=1, padx=(0, 8), sticky="w"
+        ttk.Button(actions, text="로그인 완료", style="Secondary.TButton", command=self.mark_login_done).grid(
+            row=2, column=1, padx=(0, 8), sticky="w"
         )
-        ttk.Button(actions, text="Scrapling 확인", command=self.check_scrapling_status).grid(
-            row=0, column=2, padx=(0, 8), sticky="w"
+        ttk.Button(actions, text="Scrapling 확인", style="Secondary.TButton", command=self.check_scrapling_status).grid(
+            row=2, column=2, padx=(0, 8), sticky="w"
         )
 
-        status = ttk.LabelFrame(parent, text="상태", padding=10)
-        status.grid(row=1, column=0, sticky="ew", pady=(12, 0))
+        status = self._make_card(parent, "상태")
+        status.grid(row=1, column=0, sticky="ew", pady=(16, 0))
         status.columnconfigure(1, weight=1)
 
-        ttk.Label(status, text="로그인 상태").grid(row=0, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status, textvariable=self.login_status).grid(row=0, column=1, sticky="w")
-        ttk.Label(status, text="진행 상태").grid(row=1, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status, textvariable=self.progress_status).grid(row=1, column=1, sticky="w")
-        ttk.Label(status, text="Scrapling").grid(row=2, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status, textvariable=self.scrapling_status).grid(row=2, column=1, sticky="w")
-        ttk.Label(status, text="브라우저 연결").grid(row=3, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status, text=CDP_URL).grid(row=3, column=1, sticky="w")
+        self._status_row(status, 1, "로그인 상태", self.login_status)
+        self._status_row(status, 2, "진행 상태", self.progress_status)
+        self._status_row(status, 3, "Scrapling", self.scrapling_status)
+        self._status_row(status, 4, "브라우저 연결", CDP_URL)
 
     def _build_capture_tab(self, parent: ttk.Frame) -> None:
         parent.columnconfigure(0, weight=1)
         parent.rowconfigure(2, weight=1)
 
-        controls = ttk.LabelFrame(parent, text="현재 조건검색 결과", padding=10)
+        controls = self._make_card(
+            parent,
+            "현재 조건검색 결과",
+            "Cretop에서 사용자가 직접 띄운 조건검색 결과 테이블을 CSV로 저장합니다.",
+        )
         controls.grid(row=0, column=0, sticky="ew")
         controls.columnconfigure(1, weight=1)
 
-        ttk.Label(controls, text="최대 페이지").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ttk.Label(controls, text="최대 페이지", style="Field.TLabel").grid(row=2, column=0, sticky="w", padx=(0, 8))
         ttk.Spinbox(
             controls,
             from_=1,
             to=500,
             textvariable=self.capture_max_pages,
             width=8,
-        ).grid(row=0, column=1, sticky="w")
+        ).grid(row=2, column=1, sticky="w")
         self.capture_button = ttk.Button(
             controls,
             text="화면 테이블 복사",
+            style="Accent.TButton",
             command=self.start_table_capture,
         )
-        self.capture_button.grid(row=0, column=2, sticky="e")
+        self.capture_button.grid(row=2, column=2, sticky="e")
 
-        ttk.Label(controls, text="저장 파일").grid(row=1, column=0, sticky="w", padx=(0, 8), pady=(8, 0))
-        ttk.Label(controls, textvariable=self.capture_output_status).grid(
-            row=1, column=1, sticky="ew", pady=(8, 0)
+        ttk.Label(controls, text="저장 파일", style="Field.TLabel").grid(row=3, column=0, sticky="w", padx=(0, 8), pady=(12, 0))
+        ttk.Label(controls, textvariable=self.capture_output_status, style="Value.TLabel").grid(
+            row=3, column=1, sticky="ew", pady=(12, 0)
         )
-        ttk.Button(controls, text="변경", command=self.pick_capture_output).grid(
-            row=1, column=2, sticky="e", pady=(8, 0)
+        ttk.Button(controls, text="변경", style="Secondary.TButton", command=self.pick_capture_output).grid(
+            row=3, column=2, sticky="e", pady=(12, 0)
         )
 
-        status = ttk.Frame(parent)
+        status = ttk.Frame(parent, style="App.TFrame")
         status.grid(row=1, column=0, sticky="ew", pady=(12, 8))
         status.columnconfigure(1, weight=1)
-        ttk.Label(status, text="복사 상태").grid(row=0, column=0, sticky="w", padx=(0, 8))
-        ttk.Label(status, textvariable=self.capture_status).grid(row=0, column=1, sticky="w")
+        ttk.Label(status, text="복사 상태", style="Muted.TLabel").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ttk.Label(status, textvariable=self.capture_status, style="Muted.TLabel").grid(row=0, column=1, sticky="w")
 
-        preview_frame = ttk.LabelFrame(parent, text="복사 결과 미리보기", padding=10)
+        preview_frame = self._make_card(parent, "복사 결과 미리보기")
         preview_frame.grid(row=2, column=0, sticky="nsew")
         preview_frame.columnconfigure(0, weight=1)
-        preview_frame.rowconfigure(0, weight=1)
+        preview_frame.rowconfigure(1, weight=1)
 
         self.capture_preview = ttk.Treeview(preview_frame, show="headings", height=14)
-        self.capture_preview.grid(row=0, column=0, sticky="nsew")
-        self._attach_tree_scrollbars(preview_frame, self.capture_preview)
+        self.capture_preview.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
+        self._attach_tree_scrollbars(preview_frame, self.capture_preview, row=1)
 
     def _build_excel_tab(self, parent: ttk.Frame) -> None:
         parent.columnconfigure(0, weight=1)
         parent.rowconfigure(2, weight=1)
 
-        actions = ttk.Frame(parent)
+        actions = self._make_card(
+            parent,
+            "엑셀 처리",
+            "검색 대상 파일을 불러오고 앞부분을 확인합니다. 자동 검색 처리는 규칙 확정 후 진행됩니다.",
+        )
         actions.grid(row=0, column=0, sticky="ew")
         actions.columnconfigure(1, weight=1)
 
-        ttk.Button(actions, text="엑셀 선택", command=self.pick_excel).grid(
-            row=0, column=0, padx=(0, 8), sticky="w"
+        ttk.Button(actions, text="엑셀 선택", style="Accent.TButton", command=self.pick_excel).grid(
+            row=2, column=0, padx=(0, 8), sticky="w"
         )
-        self.start_button = ttk.Button(actions, text="처리 시작", command=self.start_processing)
-        self.start_button.grid(row=0, column=2, sticky="e")
+        self.start_button = ttk.Button(actions, text="처리 시작", style="Secondary.TButton", command=self.start_processing)
+        self.start_button.grid(row=2, column=2, sticky="e")
 
-        status_grid = ttk.Frame(parent)
+        status_grid = ttk.Frame(parent, style="App.TFrame")
         status_grid.grid(row=1, column=0, sticky="ew", pady=(12, 8))
         status_grid.columnconfigure(1, weight=1)
 
-        ttk.Label(status_grid, text="파일 상태").grid(row=0, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status_grid, textvariable=self.file_status).grid(row=0, column=1, sticky="w")
-        ttk.Label(status_grid, text="진행 상태").grid(row=1, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status_grid, textvariable=self.progress_status).grid(row=1, column=1, sticky="w")
+        ttk.Label(status_grid, text="파일 상태", style="Muted.TLabel").grid(row=0, column=0, sticky="w", padx=(0, 10))
+        ttk.Label(status_grid, textvariable=self.file_status, style="Muted.TLabel").grid(row=0, column=1, sticky="w")
+        ttk.Label(status_grid, text="진행 상태", style="Muted.TLabel").grid(row=1, column=0, sticky="w", padx=(0, 10), pady=(4, 0))
+        ttk.Label(status_grid, textvariable=self.progress_status, style="Muted.TLabel").grid(row=1, column=1, sticky="w", pady=(4, 0))
 
-        preview_frame = ttk.LabelFrame(parent, text="엑셀 미리보기", padding=10)
+        preview_frame = self._make_card(parent, "엑셀 미리보기")
         preview_frame.grid(row=2, column=0, sticky="nsew")
         preview_frame.columnconfigure(0, weight=1)
-        preview_frame.rowconfigure(0, weight=1)
+        preview_frame.rowconfigure(1, weight=1)
 
         self.preview = ttk.Treeview(preview_frame, show="headings", height=12)
-        self.preview.grid(row=0, column=0, sticky="nsew")
-        self._attach_tree_scrollbars(preview_frame, self.preview)
+        self.preview.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
+        self._attach_tree_scrollbars(preview_frame, self.preview, row=1)
 
-    def _attach_tree_scrollbars(self, parent: ttk.Frame, tree: ttk.Treeview) -> None:
+    def _status_row(self, parent: ttk.Frame, row: int, label: str, value: StringVar | str) -> None:
+        ttk.Label(parent, text=label, style="Field.TLabel").grid(row=row, column=0, sticky="w", padx=(0, 18), pady=(10, 0))
+        ttk.Label(parent, textvariable=value if isinstance(value, StringVar) else None, text=None if isinstance(value, StringVar) else value, style="Value.TLabel").grid(
+            row=row, column=1, sticky="w", pady=(10, 0)
+        )
+
+    def _attach_tree_scrollbars(self, parent: ttk.Frame, tree: ttk.Treeview, row: int = 0) -> None:
         y_scroll = ttk.Scrollbar(parent, orient="vertical", command=tree.yview)
-        y_scroll.grid(row=0, column=1, sticky="ns")
+        y_scroll.grid(row=row, column=1, sticky="ns", pady=(12 if row else 0, 0))
         x_scroll = ttk.Scrollbar(parent, orient="horizontal", command=tree.xview)
-        x_scroll.grid(row=1, column=0, sticky="ew")
+        x_scroll.grid(row=row + 1, column=0, sticky="ew")
         tree.configure(yscrollcommand=y_scroll.set, xscrollcommand=x_scroll.set)
 
     def open_chrome(self) -> None:

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cretop Data Reader</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">C</span>
+          <div>
+            <strong>Cretop</strong>
+            <small>Data Reader</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-button active" data-view="session">세션 연결</button>
+          <button class="nav-button" data-view="capture">조건검색 복사</button>
+          <button class="nav-button" data-view="excel">엑셀 처리</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <span>CDP</span>
+          <strong id="cdpUrl">http://127.0.0.1:9222</strong>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Desktop Console</p>
+            <h1>Cretop Data Reader</h1>
+          </div>
+          <div class="top-status">
+            <span id="loginPill" class="pill neutral">로그인 전</span>
+            <span id="progressPill" class="pill">대기 중</span>
+          </div>
+        </header>
+
+        <section id="session" class="view active">
+          <div class="hero-panel">
+            <div>
+              <p class="eyebrow">Manual Login Flow</p>
+              <h2>Chrome을 열고 사용자가 직접 로그인합니다.</h2>
+              <p>접근 통제 우회 없이, 로그인 완료 확인 후 나머지 작업을 진행합니다.</p>
+            </div>
+            <div class="hero-actions">
+              <button id="openChrome" class="primary">Chrome 열기</button>
+              <button id="loginDone" class="secondary">로그인 완료</button>
+              <button id="checkScrapling" class="secondary">Scrapling 확인</button>
+            </div>
+          </div>
+
+          <div class="status-grid">
+            <article class="metric-card">
+              <span>로그인 상태</span>
+              <strong id="loginStatus">로그인 전</strong>
+            </article>
+            <article class="metric-card">
+              <span>진행 상태</span>
+              <strong id="progressStatus">대기 중</strong>
+            </article>
+            <article class="metric-card">
+              <span>Scrapling</span>
+              <strong id="scraplingStatus">확인 전</strong>
+            </article>
+          </div>
+        </section>
+
+        <section id="capture" class="view">
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Condition Search</p>
+                <h2>조건검색 결과 복사</h2>
+              </div>
+              <button id="captureTable" class="primary">화면 테이블 복사</button>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                <span>최대 페이지</span>
+                <input id="maxPages" type="number" min="1" max="500" value="30" />
+              </label>
+              <label class="file-field">
+                <span>저장 파일</span>
+                <div>
+                  <input id="captureOutput" type="text" readonly />
+                  <button id="pickOutput" class="secondary">변경</button>
+                </div>
+              </label>
+            </div>
+            <p id="captureStatus" class="inline-status">대기 중</p>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="panel-heading compact">
+              <h2>복사 결과 미리보기</h2>
+              <span id="captureCount" class="subtle">0행</span>
+            </div>
+            <div id="capturePreview" class="table-empty">아직 복사된 테이블이 없습니다.</div>
+          </div>
+        </section>
+
+        <section id="excel" class="view">
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Input Workbook</p>
+                <h2>엑셀 검색 대상</h2>
+              </div>
+              <div class="panel-actions">
+                <button id="pickExcel" class="primary">엑셀 선택</button>
+                <button id="startProcessing" class="secondary" disabled>처리 시작</button>
+              </div>
+            </div>
+            <dl class="detail-list">
+              <div>
+                <dt>파일 상태</dt>
+                <dd id="fileStatus">엑셀 파일 미선택</dd>
+              </div>
+              <div>
+                <dt>진행 상태</dt>
+                <dd id="excelProgress">대기 중</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="panel-heading compact">
+              <h2>엑셀 미리보기</h2>
+              <span id="excelCount" class="subtle">0행</span>
+            </div>
+            <div id="excelPreview" class="table-empty">파일을 선택하면 앞부분을 표시합니다.</div>
+          </div>
+        </section>
+
+        <section class="log-panel">
+          <div class="panel-heading compact">
+            <h2>활동 로그</h2>
+            <button id="clearLog" class="ghost">지우기</button>
+          </div>
+          <ol id="logs" class="logs"></ol>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

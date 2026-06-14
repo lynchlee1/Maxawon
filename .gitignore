@@ -33,6 +33,7 @@ exports/
 downloads/
 
 # Test and tool caches
+node_modules/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

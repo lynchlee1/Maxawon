@@ -1,0 +1,14 @@
+{
+  "name": "cretop-data-reader-desktop",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Modern Electron desktop UI for Cretop Data Reader",
+  "main": "electron/main.js",
+  "scripts": {
+    "desktop": "electron .",
+    "desktop:dev": "electron . --dev"
+  },
+  "devDependencies": {
+    "electron": "^42.4.0"
+  }
+}
