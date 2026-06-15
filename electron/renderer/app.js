@@ -42,43 +42,6 @@ function showView(name) {
   });
 }
 
-function renderTable(targetSelector, headers, rows) {
-  const target = $(targetSelector);
-  if (!headers.length && !rows.length) {
-    target.className = "table-empty";
-    target.textContent = "표시할 데이터가 없습니다.";
-    return;
-  }
-
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const tbody = document.createElement("tbody");
-  const headerRow = document.createElement("tr");
-  const width = Math.max(headers.length, ...rows.map((row) => row.length));
-  const normalizedHeaders = Array.from({ length: width }, (_, index) => headers[index] || `Column ${index + 1}`);
-
-  normalizedHeaders.forEach((header) => {
-    const th = document.createElement("th");
-    th.textContent = header;
-    headerRow.append(th);
-  });
-  thead.append(headerRow);
-
-  rows.forEach((row) => {
-    const tr = document.createElement("tr");
-    normalizedHeaders.forEach((_header, index) => {
-      const td = document.createElement("td");
-      td.textContent = row[index] || "";
-      tr.append(td);
-    });
-    tbody.append(tr);
-  });
-
-  table.append(thead, tbody);
-  target.className = "table-wrap";
-  target.replaceChildren(table);
-}
-
 async function runAction(action) {
   try {
     return await action();
@@ -106,9 +69,7 @@ async function runCapture(payload, resumed = false) {
   try {
     const result = await window.cretop.captureTable(payload);
     state.pendingCapture = null;
-    renderTable("#capturePreview", result.headers, result.rows);
-    setText("#captureCount", `${result.rowCount}행`);
-    addLog(`조건검색 결과를 저장했습니다: ${result.outputPath}`);
+    addLog(`조건검색 결과 ${result.rowCount}행을 저장했습니다: ${result.outputPath}`);
   } catch (error) {
     if (isExpiredError(error)) {
       state.pendingCapture = payload;
