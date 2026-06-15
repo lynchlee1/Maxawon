@@ -150,6 +150,25 @@ async function init() {
     addLog("사용자가 로그인 완료를 확인했습니다.");
   });
 
+  $("#closeAppChrome").addEventListener("click", async () => {
+    const result = await runAction(() => window.cretop.closeAppChrome());
+    if (!result) return;
+    setLogin("미연결", false);
+    setProgress("실행된 Chrome 종료됨");
+    addLog(result.message);
+  });
+
+  $("#closeAllChrome").addEventListener("click", async () => {
+    const confirmed = window.confirm("사용자가 직접 연 Chrome까지 모두 종료합니다. 계속할까요?");
+    if (!confirmed) return;
+
+    const result = await runAction(() => window.cretop.closeAllChrome());
+    if (!result) return;
+    setLogin("미연결", false);
+    setProgress("전체 Chrome 종료됨");
+    addLog(result.message);
+  });
+
   $("#pickOutput").addEventListener("click", async () => {
     const selected = await runAction(() => window.cretop.pickCaptureOutput(state.captureOutput));
     if (!selected) return;

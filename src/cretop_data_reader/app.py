@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import csv
+import os
 import platform
 import shutil
+import signal
 import subprocess
 import threading
 from pathlib import Path
@@ -32,6 +34,8 @@ COLOR_TEXT = "#172033"
 COLOR_MUTED = "#667085"
 COLOR_ACCENT = "#2563eb"
 COLOR_ACCENT_ACTIVE = "#1d4ed8"
+COLOR_DANGER = "#b42318"
+COLOR_DANGER_ACTIVE = "#8f1d15"
 COLOR_SIDEBAR = "#111827"
 COLOR_SIDEBAR_ACTIVE = "#1f2937"
 COLOR_SIDEBAR_TEXT = "#e5e7eb"
@@ -62,6 +66,87 @@ def find_chrome() -> str | None:
             return str(candidate)
 
     return None
+
+
+def _matching_pids(patterns: list[str]) -> list[int]:
+    pids: set[int] = set()
+    for pattern in patterns:
+        result = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True, check=False)
+        if result.returncode not in (0, 1):
+            continue
+        for line in result.stdout.splitlines():
+            try:
+                pid = int(line.strip())
+            except ValueError:
+                continue
+            if pid > 0 and pid != os.getpid():
+                pids.add(pid)
+    return sorted(pids)
+
+
+def close_app_chrome_processes() -> int:
+    patterns = [str(PROFILE_DIR), f"--remote-debugging-port={REMOTE_DEBUGGING_PORT}"]
+    if platform.system() == "Windows":
+        profile = str(PROFILE_DIR).replace("'", "''")
+        port = f"--remote-debugging-port={REMOTE_DEBUGGING_PORT}"
+        script = f"""
+$matches = Get-CimInstance Win32_Process | Where-Object {{
+  $_.Name -eq 'chrome.exe' -and $_.CommandLine -and (
+    $_.CommandLine -like '*{profile}*' -or $_.CommandLine -like '*{port}*'
+  )
+}}
+$matches | ForEach-Object {{
+  Stop-Process -Id $_.ProcessId -Force
+  $_.ProcessId
+}}
+"""
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr.strip() or "앱이 연 Chrome 프로세스 종료에 실패했습니다.")
+        return len([line for line in result.stdout.splitlines() if line.strip()])
+
+    count = 0
+    for pid in _matching_pids(patterns):
+        try:
+            os.kill(pid, signal.SIGTERM)
+            count += 1
+        except ProcessLookupError:
+            pass
+    return count
+
+
+def close_all_chrome_processes() -> int:
+    system = platform.system()
+    if system == "Darwin":
+        result = subprocess.run(["pkill", "-f", "Google Chrome"], capture_output=True, text=True, check=False)
+    elif system == "Windows":
+        script = """
+$matches = Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'chrome.exe' }
+$matches | ForEach-Object {
+  Stop-Process -Id $_.ProcessId -Force
+  $_.ProcessId
+}
+"""
+        result = subprocess.run(
+            ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(result.stderr.strip() or "Chrome 전체 종료에 실패했습니다.")
+        return len([line for line in result.stdout.splitlines() if line.strip()])
+    else:
+        result = subprocess.run(["pkill", "-f", "chrome|chromium"], capture_output=True, text=True, check=False)
+
+    if result.returncode not in (0, 1):
+        raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "Chrome 전체 종료에 실패했습니다.")
+    return 1 if result.returncode == 0 else 0
 
 
 def read_excel_preview(path: Path, limit: int = 20) -> tuple[list[str], list[list[str]]]:
@@ -211,6 +296,8 @@ class CretopDataReaderApp:
         style.configure("TButton", padding=(14, 8), borderwidth=0, focusthickness=0)
         style.configure("Accent.TButton", background=COLOR_ACCENT, foreground="#ffffff")
         style.map("Accent.TButton", background=[("active", COLOR_ACCENT_ACTIVE), ("disabled", "#9ca3af")])
+        style.configure("Danger.TButton", background=COLOR_DANGER, foreground="#ffffff")
+        style.map("Danger.TButton", background=[("active", COLOR_DANGER_ACTIVE), ("disabled", "#9ca3af")])
         style.configure("Secondary.TButton", background=COLOR_SURFACE_MUTED, foreground=COLOR_TEXT)
         style.map("Secondary.TButton", background=[("active", "#e5e7eb")])
         style.configure("Nav.TButton", anchor="w", padding=(12, 10), background=COLOR_SIDEBAR, foreground=COLOR_SIDEBAR_TEXT)
@@ -276,7 +363,7 @@ class CretopDataReaderApp:
             "Chrome을 원격 디버깅 모드로 열고, 로그인은 사용자가 직접 완료합니다.",
         )
         actions.grid(row=0, column=0, sticky="ew")
-        actions.columnconfigure(2, weight=1)
+        actions.columnconfigure(4, weight=1)
 
         ttk.Button(actions, text="Chrome 열기", style="Accent.TButton", command=self.open_chrome).grid(
             row=2, column=0, padx=(0, 8), sticky="w"
@@ -284,8 +371,14 @@ class CretopDataReaderApp:
         ttk.Button(actions, text="로그인 완료", style="Secondary.TButton", command=self.mark_login_done).grid(
             row=2, column=1, padx=(0, 8), sticky="w"
         )
-        ttk.Button(actions, text="Scrapling 확인", style="Secondary.TButton", command=self.check_scrapling_status).grid(
+        ttk.Button(actions, text="실행된 Chrome 종료", style="Danger.TButton", command=self.close_app_chrome).grid(
             row=2, column=2, padx=(0, 8), sticky="w"
+        )
+        ttk.Button(actions, text="전체 Chrome 종료", style="Danger.TButton", command=self.close_all_chrome).grid(
+            row=2, column=3, padx=(0, 8), sticky="w"
+        )
+        ttk.Button(actions, text="Scrapling 확인", style="Secondary.TButton", command=self.check_scrapling_status).grid(
+            row=2, column=4, padx=(0, 8), sticky="w"
         )
 
         status = self._make_card(parent, "상태")
@@ -417,6 +510,43 @@ class CretopDataReaderApp:
         )
         self.progress_status.set("Chrome 실행됨")
         self.add_log("Chrome을 열었습니다. Cretop에서 직접 로그인한 뒤 조건검색을 실행하세요.")
+
+    def close_app_chrome(self) -> None:
+        try:
+            count = close_app_chrome_processes()
+        except RuntimeError as exc:
+            messagebox.showerror("Chrome 종료 실패", str(exc))
+            self.add_log(str(exc))
+            return
+
+        self.login_status.set("로그인 전")
+        self.progress_status.set("실행된 Chrome 종료됨")
+        self.add_log(
+            "앱이 연 Chrome 프로세스를 종료했습니다."
+            if count
+            else "종료할 앱 Chrome 프로세스를 찾지 못했습니다."
+        )
+        self._set_excel_start_enabled()
+
+    def close_all_chrome(self) -> None:
+        if not messagebox.askyesno("전체 Chrome 종료", "사용자가 직접 연 Chrome까지 모두 종료합니다. 계속할까요?"):
+            return
+
+        try:
+            count = close_all_chrome_processes()
+        except RuntimeError as exc:
+            messagebox.showerror("Chrome 종료 실패", str(exc))
+            self.add_log(str(exc))
+            return
+
+        self.login_status.set("로그인 전")
+        self.progress_status.set("전체 Chrome 종료됨")
+        self.add_log(
+            "모든 Chrome 프로세스 종료 명령을 실행했습니다."
+            if count
+            else "실행 중인 Chrome 프로세스를 찾지 못했습니다."
+        )
+        self._set_excel_start_enabled()
 
     def mark_login_done(self) -> None:
         self.login_status.set("로그인 완료")

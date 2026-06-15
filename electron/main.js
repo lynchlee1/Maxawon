@@ -166,6 +166,101 @@ function stopNetworkLogger() {
   networkLoggerProcess = null;
 }
 
+function runSync(command, args) {
+  return spawnSync(command, args, { encoding: "utf8" });
+}
+
+function collectMatchingPids(patterns) {
+  const pids = new Set();
+  for (const pattern of patterns) {
+    const result = runSync("pgrep", ["-f", pattern]);
+    if (result.status !== 0 && result.status !== 1) continue;
+    for (const line of result.stdout.split(/\r?\n/)) {
+      const pid = Number(line.trim());
+      if (Number.isInteger(pid) && pid > 0 && pid !== process.pid) {
+        pids.add(pid);
+      }
+    }
+  }
+  return [...pids];
+}
+
+function terminatePids(pids, signal) {
+  let count = 0;
+  for (const pid of pids) {
+    try {
+      process.kill(pid, signal);
+      count += 1;
+    } catch (_error) {
+      // Process may have exited between discovery and termination.
+    }
+  }
+  return count;
+}
+
+function closeAppChromeProcesses() {
+  stopNetworkLogger();
+
+  const patterns = [profileDir, `--remote-debugging-port=${remoteDebuggingPort}`];
+  if (process.platform === "win32") {
+    const profile = profileDir.replace(/'/g, "''");
+    const port = `--remote-debugging-port=${remoteDebuggingPort}`;
+    const script = `
+$matches = Get-CimInstance Win32_Process | Where-Object {
+  $_.Name -eq 'chrome.exe' -and $_.CommandLine -and (
+    $_.CommandLine -like '*${profile}*' -or $_.CommandLine -like '*${port}*'
+  )
+}
+$matches | ForEach-Object {
+  Stop-Process -Id $_.ProcessId -Force
+  $_.ProcessId
+}
+`;
+    const result = runSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script]);
+    if (result.status !== 0) {
+      throw new Error(result.stderr.trim() || "앱이 연 Chrome 프로세스 종료에 실패했습니다.");
+    }
+    return result.stdout.split(/\r?\n/).filter((line) => line.trim()).length;
+  }
+
+  const pids = collectMatchingPids(patterns);
+  const count = terminatePids(pids, "SIGTERM");
+  return count || terminatePids(pids, "SIGKILL");
+}
+
+function closeAllChromeProcesses() {
+  stopNetworkLogger();
+
+  if (process.platform === "darwin") {
+    const result = runSync("pkill", ["-f", "Google Chrome"]);
+    if (result.status !== 0 && result.status !== 1) {
+      throw new Error(result.stderr.trim() || "Chrome 전체 종료에 실패했습니다.");
+    }
+    return result.status === 0 ? 1 : 0;
+  }
+
+  if (process.platform === "win32") {
+    const script = `
+$matches = Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'chrome.exe' }
+$matches | ForEach-Object {
+  Stop-Process -Id $_.ProcessId -Force
+  $_.ProcessId
+}
+`;
+    const result = runSync("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script]);
+    if (result.status !== 0) {
+      throw new Error(result.stderr.trim() || "Chrome 전체 종료에 실패했습니다.");
+    }
+    return result.stdout.split(/\r?\n/).filter((line) => line.trim()).length;
+  }
+
+  const result = runSync("pkill", ["-f", "chrome|chromium"]);
+  if (result.status !== 0 && result.status !== 1) {
+    throw new Error(result.stderr.trim() || "Chrome/Chromium 전체 종료에 실패했습니다.");
+  }
+  return result.status === 0 ? 1 : 0;
+}
+
 function findChrome() {
   if (process.platform === "darwin") {
     const candidates = [
@@ -220,6 +315,20 @@ ipcMain.handle("app:open-chrome", async () => {
 
   return {
     message: `Chrome을 열었습니다. Network 로그는 ${networkLogDir}에 1일치만 저장합니다.`,
+  };
+});
+
+ipcMain.handle("app:close-app-chrome", () => {
+  const count = closeAppChromeProcesses();
+  return {
+    message: count > 0 ? "앱이 연 Chrome 프로세스를 종료했습니다." : "종료할 앱 Chrome 프로세스를 찾지 못했습니다.",
+  };
+});
+
+ipcMain.handle("app:close-all-chrome", () => {
+  const count = closeAllChromeProcesses();
+  return {
+    message: count > 0 ? "모든 Chrome 프로세스 종료 명령을 실행했습니다." : "실행 중인 Chrome 프로세스를 찾지 못했습니다.",
   };
 });
 

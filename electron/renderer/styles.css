@@ -253,6 +253,7 @@ label span,
 
 .primary,
 .secondary,
+.danger,
 .ghost {
   min-height: 40px;
   border-radius: 10px;
@@ -277,6 +278,15 @@ label span,
 .secondary:hover,
 .ghost:hover {
   background: #e2e8f0;
+}
+
+.danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.danger:hover {
+  background: #8f1d15;
 }
 
 .ghost {
