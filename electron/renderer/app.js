@@ -1,6 +1,6 @@
 const state = {
   loginDone: false,
-  excelPath: null,
+  inputRows: [],
   captureOutput: "",
 };
 
@@ -28,22 +28,23 @@ function addLog(message) {
 }
 
 function setProgress(message) {
-  setText("#progressStatus", message);
-  setText("#progressPill", message);
-  setText("#excelProgress", message);
+  setText("#sessionProgress", message);
+}
+
+function setInputProgress(message) {
+  setText("#inputProgress", message);
 }
 
 function setLogin(message, done = false) {
   state.loginDone = done;
-  setText("#loginStatus", message);
-  setText("#loginPill", message);
-  $("#loginPill").classList.toggle("success", done);
-  $("#loginPill").classList.toggle("neutral", !done);
+  setText("#loginText", message);
+  $("#loginPill").classList.toggle("connected", done);
+  $("#loginPill").classList.toggle("disconnected", !done);
   updateStartEnabled();
 }
 
 function updateStartEnabled() {
-  $("#startProcessing").disabled = !(state.loginDone && state.excelPath);
+  $("#startProcessing").disabled = !(state.loginDone && state.inputRows.length);
 }
 
 function showView(name) {
@@ -90,6 +91,33 @@ function renderTable(targetSelector, headers, rows) {
   target.replaceChildren(table);
 }
 
+function parseManualInput(value) {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split(/\t|,/).map((cell) => cell.trim()));
+}
+
+function refreshManualInput() {
+  const rows = parseManualInput($("#manualInput").value);
+  state.inputRows = rows;
+
+  if (!rows.length) {
+    $("#manualPreview").className = "table-empty";
+    $("#manualPreview").textContent = "검색 대상을 한 줄에 하나씩 입력하세요.";
+    setText("#manualCount", "0행");
+    setInputProgress("입력 대기");
+    updateStartEnabled();
+    return;
+  }
+
+  renderTable("#manualPreview", ["검색 대상"], rows);
+  setText("#manualCount", `${rows.length}행`);
+  setInputProgress("입력됨");
+  updateStartEnabled();
+}
+
 async function runAction(action) {
   try {
     return await action();
@@ -104,7 +132,6 @@ async function init() {
   const defaults = await window.cretop.getDefaults();
   state.captureOutput = defaults.defaultCaptureOutput;
   $("#captureOutput").value = defaults.defaultCaptureOutput;
-  $("#cdpUrl").textContent = defaults.cdpUrl;
 
   $$(".nav-button").forEach((button) => {
     button.addEventListener("click", () => showView(button.dataset.view));
@@ -118,16 +145,9 @@ async function init() {
   });
 
   $("#loginDone").addEventListener("click", () => {
-    setLogin("로그인 완료", true);
-    setProgress("엑셀 파일 선택 대기");
+    setLogin("연결", true);
+    setProgress("로그인 완료");
     addLog("사용자가 로그인 완료를 확인했습니다.");
-  });
-
-  $("#checkScrapling").addEventListener("click", async () => {
-    const result = await runAction(() => window.cretop.checkScrapling());
-    if (!result) return;
-    setText("#scraplingStatus", result.message);
-    addLog(result.message);
   });
 
   $("#pickOutput").addEventListener("click", async () => {
@@ -170,22 +190,12 @@ async function init() {
     addLog(`조건검색 결과를 저장했습니다: ${result.outputPath}`);
   });
 
-  $("#pickExcel").addEventListener("click", async () => {
-    const result = await runAction(() => window.cretop.pickExcel());
-    if (!result) return;
-    state.excelPath = result.path;
-    setText("#fileStatus", result.path);
-    setProgress("엑셀 파일 로드됨");
-    renderTable("#excelPreview", result.headers, result.rows);
-    setText("#excelCount", `${result.rows.length}행 미리보기`);
-    addLog(`검색 대상 파일을 불러왔습니다: ${result.path}`);
-    updateStartEnabled();
-  });
+  $("#manualInput").addEventListener("input", refreshManualInput);
 
   $("#startProcessing").addEventListener("click", () => {
-    setProgress("구현 대기");
+    setInputProgress("구현 대기");
     addLog("Scrapling 기반 검색 처리는 아직 구현되지 않았습니다. 중복 후보 처리 규칙을 먼저 확정해야 합니다.");
-    window.alert("기업명/법인번호 컬럼, 출력 항목, 중복 후보 선택 기준을 확정한 뒤 구현하세요.");
+    window.alert("입력 형식, 출력 항목, 중복 후보 선택 기준을 확정한 뒤 구현하세요.");
   });
 
   $("#clearLog").addEventListener("click", () => {
@@ -193,11 +203,7 @@ async function init() {
   });
 
   addLog("Chrome을 열고 직접 로그인한 뒤 '로그인 완료'를 누르세요.");
-  const scrapling = await runAction(() => window.cretop.checkScrapling());
-  if (scrapling) {
-    setText("#scraplingStatus", scrapling.message);
-    addLog(scrapling.message);
-  }
+  refreshManualInput();
 }
 
 init();

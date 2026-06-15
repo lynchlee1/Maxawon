@@ -20,13 +20,9 @@
         <nav class="nav">
           <button class="nav-button active" data-view="session">세션 연결</button>
           <button class="nav-button" data-view="capture">조건검색 복사</button>
-          <button class="nav-button" data-view="excel">엑셀 처리</button>
+          <button class="nav-button" data-view="input">직접 입력</button>
         </nav>
 
-        <div class="sidebar-footer">
-          <span>CDP</span>
-          <strong id="cdpUrl">http://127.0.0.1:9222</strong>
-        </div>
       </aside>
 
       <main class="main">
@@ -36,38 +32,20 @@
             <h1>Cretop Data Reader</h1>
           </div>
           <div class="top-status">
-            <span id="loginPill" class="pill neutral">로그인 전</span>
-            <span id="progressPill" class="pill">대기 중</span>
+            <span id="loginPill" class="connection-pill disconnected">
+              <span class="status-dot"></span>
+              <span id="loginText">미연결</span>
+            </span>
           </div>
         </header>
 
         <section id="session" class="view active">
-          <div class="hero-panel">
-            <div>
-              <p class="eyebrow">Manual Login Flow</p>
-              <h2>Chrome을 열고 사용자가 직접 로그인합니다.</h2>
-              <p>접근 통제 우회 없이, 로그인 완료 확인 후 나머지 작업을 진행합니다.</p>
-            </div>
-            <div class="hero-actions">
+          <div class="session-panel">
+            <div class="session-actions">
               <button id="openChrome" class="primary">Chrome 열기</button>
-              <button id="loginDone" class="secondary">로그인 완료</button>
-              <button id="checkScrapling" class="secondary">Scrapling 확인</button>
+              <button id="loginDone" class="primary">로그인 완료</button>
             </div>
-          </div>
-
-          <div class="status-grid">
-            <article class="metric-card">
-              <span>로그인 상태</span>
-              <strong id="loginStatus">로그인 전</strong>
-            </article>
-            <article class="metric-card">
-              <span>진행 상태</span>
-              <strong id="progressStatus">대기 중</strong>
-            </article>
-            <article class="metric-card">
-              <span>Scrapling</span>
-              <strong id="scraplingStatus">확인 전</strong>
-            </article>
+            <p id="sessionProgress" class="inline-status">대기 중</p>
           </div>
         </section>
 
@@ -106,36 +84,30 @@
           </div>
         </section>
 
-        <section id="excel" class="view">
+        <section id="input" class="view">
           <div class="panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Input Workbook</p>
-                <h2>엑셀 검색 대상</h2>
+                <p class="eyebrow">Manual Input</p>
+                <h2>검색 대상 직접 입력</h2>
               </div>
               <div class="panel-actions">
-                <button id="pickExcel" class="primary">엑셀 선택</button>
                 <button id="startProcessing" class="secondary" disabled>처리 시작</button>
               </div>
             </div>
-            <dl class="detail-list">
-              <div>
-                <dt>파일 상태</dt>
-                <dd id="fileStatus">엑셀 파일 미선택</dd>
-              </div>
-              <div>
-                <dt>진행 상태</dt>
-                <dd id="excelProgress">대기 중</dd>
-              </div>
-            </dl>
+            <label class="manual-input-field">
+              <span>검색 대상</span>
+              <textarea id="manualInput" rows="6" placeholder="기업명 또는 법인번호를 한 줄에 하나씩 입력"></textarea>
+            </label>
+            <p id="inputProgress" class="inline-status">입력 대기</p>
           </div>
 
           <div class="panel table-panel">
             <div class="panel-heading compact">
-              <h2>엑셀 미리보기</h2>
-              <span id="excelCount" class="subtle">0행</span>
+              <h2>입력 목록</h2>
+              <span id="manualCount" class="subtle">0행</span>
             </div>
-            <div id="excelPreview" class="table-empty">파일을 선택하면 앞부분을 표시합니다.</div>
+            <div id="manualPreview" class="table-empty">검색 대상을 한 줄에 하나씩 입력하세요.</div>
           </div>
         </section>
 

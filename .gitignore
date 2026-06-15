@@ -18,6 +18,7 @@ env/
 # Local logs and runtime output
 *.log
 logs/
+network-logs/
 tmp/
 temp/
 

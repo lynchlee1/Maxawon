@@ -8,10 +8,12 @@ const projectRoot = path.resolve(__dirname, "..");
 const srcRoot = path.join(projectRoot, "src");
 const profileDir = path.join(projectRoot, ".chrome-profile");
 const defaultCaptureOutput = path.join(projectRoot, "output", "cretop_condition_search.csv");
+const networkLogDir = path.join(projectRoot, "network-logs");
 const remoteDebuggingPort = "9222";
 const cretopUrl = "https://www.cretop.com/";
 
 let mainWindow;
+let networkLoggerProcess = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -37,10 +39,17 @@ function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  purgeOldNetworkLogs();
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+app.on("before-quit", () => {
+  stopNetworkLogger();
 });
 
 app.on("activate", () => {
@@ -58,6 +67,8 @@ function runPython(code, args = []) {
       env: {
         ...process.env,
         PYTHONPATH: process.env.PYTHONPATH ? `${srcRoot}${path.delimiter}${process.env.PYTHONPATH}` : srcRoot,
+        PYTHONUTF8: "1",
+        PYTHONWARNINGS: "ignore",
       },
     });
 
@@ -82,6 +93,75 @@ function runPython(code, args = []) {
       }
     });
   });
+}
+
+function pythonEnv() {
+  return {
+    ...process.env,
+    PYTHONPATH: process.env.PYTHONPATH ? `${srcRoot}${path.delimiter}${process.env.PYTHONPATH}` : srcRoot,
+    PYTHONUTF8: "1",
+    PYTHONWARNINGS: "ignore",
+  };
+}
+
+function purgeOldNetworkLogs() {
+  if (!fs.existsSync(networkLogDir)) return;
+
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const removeOldFiles = (directory) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        removeOldFiles(entryPath);
+        try {
+          fs.rmdirSync(entryPath);
+        } catch (_error) {
+          // Keep non-empty directories.
+        }
+        continue;
+      }
+
+      if (entry.isFile() && fs.statSync(entryPath).mtimeMs < cutoff) {
+        fs.unlinkSync(entryPath);
+      }
+    }
+  };
+
+  removeOldFiles(networkLogDir);
+}
+
+function startNetworkLogger() {
+  if (networkLoggerProcess && !networkLoggerProcess.killed) return;
+
+  fs.mkdirSync(networkLogDir, { recursive: true });
+  networkLoggerProcess = spawn(
+    pythonCommand(),
+    [
+      "-m",
+      "cretop_data_reader.network_logger",
+      "--log-dir",
+      networkLogDir,
+      "--cdp-url",
+      `http://127.0.0.1:${remoteDebuggingPort}`,
+    ],
+    {
+      cwd: projectRoot,
+      env: pythonEnv(),
+      stdio: "ignore",
+    },
+  );
+  networkLoggerProcess.on("error", () => {
+    networkLoggerProcess = null;
+  });
+  networkLoggerProcess.on("exit", () => {
+    networkLoggerProcess = null;
+  });
+}
+
+function stopNetworkLogger() {
+  if (!networkLoggerProcess || networkLoggerProcess.killed) return;
+  networkLoggerProcess.kill();
+  networkLoggerProcess = null;
 }
 
 function findChrome() {
@@ -113,6 +193,7 @@ function findChrome() {
 ipcMain.handle("app:get-defaults", () => ({
   defaultCaptureOutput,
   cdpUrl: `http://127.0.0.1:${remoteDebuggingPort}`,
+  networkLogDir,
 }));
 
 ipcMain.handle("app:open-chrome", async () => {
@@ -133,45 +214,11 @@ ipcMain.handle("app:open-chrome", async () => {
     { detached: true, stdio: "ignore" },
   );
   child.unref();
+  startNetworkLogger();
 
-  return { message: "Chrome을 열었습니다. Cretop에서 직접 로그인한 뒤 조건검색을 실행하세요." };
-});
-
-ipcMain.handle("app:check-scrapling", () =>
-  runPython(`
-import json
-from cretop_data_reader.scrapling_adapter import check_scrapling
-status = check_scrapling()
-print(json.dumps({"installed": status.installed, "message": status.message}, ensure_ascii=False))
-`),
-);
-
-ipcMain.handle("app:pick-excel", async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    title: "검색 대상 파일 선택",
-    properties: ["openFile"],
-    filters: [
-      { name: "Excel or CSV", extensions: ["xlsx", "xlsm", "csv"] },
-      { name: "Excel", extensions: ["xlsx", "xlsm"] },
-      { name: "CSV", extensions: ["csv"] },
-      { name: "All files", extensions: ["*"] },
-    ],
-  });
-
-  if (result.canceled || result.filePaths.length === 0) return null;
-  const filePath = result.filePaths[0];
-  const preview = await runPython(
-    `
-import json
-import sys
-from pathlib import Path
-from cretop_data_reader.app import read_excel_preview
-headers, rows = read_excel_preview(Path(sys.argv[1]))
-print(json.dumps({"headers": headers, "rows": rows}, ensure_ascii=False))
-`,
-    [filePath],
-  );
-  return { path: filePath, ...preview };
+  return {
+    message: `Chrome을 열었습니다. Network 로그는 ${networkLogDir}에 1일치만 저장합니다.`,
+  };
 });
 
 ipcMain.handle("app:pick-capture-output", async (_event, currentPath) => {
