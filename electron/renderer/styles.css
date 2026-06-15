@@ -127,7 +127,8 @@ button:disabled {
   overflow: hidden;
 }
 
-.main:has(#session.view.active) {
+.main:has(#session.view.active),
+.main:has(#capture.view.active) {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
 
@@ -230,7 +231,8 @@ h2 {
   gap: 18px;
 }
 
-#session.view.active {
+#session.view.active,
+#capture.view.active {
   align-content: start;
   align-self: start;
   grid-template-rows: auto;
@@ -441,7 +443,8 @@ input:focus {
   list-style: none;
 }
 
-.main:has(#session.view.active) .logs {
+.main:has(#session.view.active) .logs,
+.main:has(#capture.view.active) .logs {
   max-height: none;
 }
 
