@@ -1,0 +1,117 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v2.5.3"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Maxawon $RELEASE_TAG" \
+              --notes "Automated Maxawon release for $RELEASE_TAG." \
+              --draft
+
+  build:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            node-version: "22"
+            python-version: "3.13"
+            build-script: dist:mac
+            assets: |
+              dist/*.dmg
+              dist/*.dmg.blockmap
+              dist/*.zip
+              dist/*.zip.blockmap
+              dist/latest-mac.yml
+          - os: windows-latest
+            node-version: "22"
+            python-version: "3.13"
+            build-script: dist
+            assets: |
+              dist/*.exe
+              dist/*.exe.blockmap
+              dist/latest.yml
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        run: python -m pip install -e ".[build]"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Node tests
+        run: npm run test:node
+
+      - name: Build release artifacts
+        run: npm run ${{ matrix.build-script }}
+
+      - name: Upload release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASSETS: ${{ matrix.assets }}
+        run: |
+          files=()
+          while IFS= read -r pattern; do
+            [ -z "$pattern" ] && continue
+            for file in $pattern; do
+              [ -f "$file" ] && files+=("$file")
+            done
+          done <<< "$ASSETS"
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No release assets found"
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" "${files[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+
+  publish-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
