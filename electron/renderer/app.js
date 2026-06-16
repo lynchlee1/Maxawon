@@ -18,18 +18,12 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+const PPT_STEPS = ["source", "shareholders", "copy", "review"];
 
 const PAGE_INFO = {
   session: [],
   capture: [],
-  ppt: [
-    {
-      type: "steps",
-      collapsed: true,
-      title: "사용 방법",
-      items: ["기본 입력에서 종목코드, 발행 조건, Model.xlsx, PPT 템플릿, 저장 파일을 채웁니다.", "필요하면 AI 문구 생성을 누르고 문구를 직접 다듬습니다.", "데이터 만들기를 눌러 회사/엑셀 조회 결과와 주주 목록을 확인합니다.", "검토 후 PPT 생성을 누릅니다."],
-    },
-  ],
+  ppt: [],
   updates: [
     {
       type: "steps",
@@ -134,11 +128,22 @@ function setPptSettingsOpen(open) {
 }
 
 function showPptTab(name) {
+  const activeIndex = PPT_STEPS.indexOf(name);
   $$(".ppt-tab").forEach((button) => {
     button.classList.toggle("active", button.dataset.pptTab === name);
+    button.setAttribute("aria-selected", String(button.dataset.pptTab === name));
   });
   $$(".ppt-tab-panel").forEach((panel) => {
-    panel.classList.toggle("active", panel.dataset.pptPanel === name);
+    const isActive = panel.dataset.pptPanel === name;
+    panel.classList.toggle("active", isActive);
+    panel.hidden = !isActive;
+  });
+  $$("#ppt-forger .workflow-overview-item").forEach((button) => {
+    const stepIndex = PPT_STEPS.indexOf(button.dataset.pptStep);
+    const isActive = button.dataset.pptStep === name;
+    button.classList.toggle("active", isActive);
+    button.classList.toggle("complete", activeIndex > stepIndex);
+    button.setAttribute("aria-current", isActive ? "step" : "false");
   });
 }
 
@@ -653,6 +658,14 @@ async function init() {
 
   $$(".ppt-tab").forEach((button) => {
     button.addEventListener("click", () => showPptTab(button.dataset.pptTab));
+  });
+
+  $$("#ppt-forger .workflow-overview-item").forEach((button) => {
+    button.addEventListener("click", () => showPptTab(button.dataset.pptStep));
+  });
+
+  $$("[data-ppt-goto]").forEach((button) => {
+    button.addEventListener("click", () => showPptTab(button.dataset.pptGoto));
   });
 
   $("#openChrome").addEventListener("click", async () => {
