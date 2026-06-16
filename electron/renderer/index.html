@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Maxawon</title>
+        <link rel="stylesheet" href="./ui-assets.css" />
         <link rel="stylesheet" href="./styles.css" />
     </head>
     <body>
@@ -21,27 +22,36 @@
                     <div class="nav-group">
                         <div class="nav-section-label">Cretop</div>
                         <button
-                            class="nav-button nav-page active"
+                            class="ui-button nav-button nav-page active"
                             data-view="session"
                         >
                             Cretop 로그인 연결하기
                         </button>
-                        <button class="nav-button nav-page" data-view="capture">
+                        <button class="ui-button nav-button nav-page" data-view="capture">
                             Cretop 검색결과 저장하기
                         </button>
                     </div>
                     <div class="nav-group">
                         <div class="nav-section-label">PPT</div>
                         <button
-                            class="nav-button nav-page"
+                            class="ui-button nav-button nav-page"
                             data-view="ppt-forger"
                         >
                             PPT Forger
                         </button>
                     </div>
                     <div class="nav-group">
+                        <div class="nav-section-label">공시</div>
+                        <button
+                            class="ui-button nav-button nav-page"
+                            data-view="weekly-mezz"
+                        >
+                            Weekly Mezz
+                        </button>
+                    </div>
+                    <div class="nav-group">
                         <div class="nav-section-label">앱 관리</div>
-                        <button class="nav-button nav-page" data-view="updates">
+                        <button class="ui-button nav-button nav-page" data-view="updates">
                             업데이트 조회
                         </button>
                     </div>
@@ -59,16 +69,16 @@
                                 <h2>Cretop 로그인 연결하기</h2>
                             </div>
                             <div class="panel-actions">
-                                <button id="openChrome" class="primary">
+                                <button id="openChrome" class="ui-button primary">
                                     Chrome 열기
                                 </button>
-                                <button id="loginDone" class="primary">
+                                <button id="loginDone" class="ui-button primary">
                                     로그인 완료
                                 </button>
-                                <button id="closeAppChrome" class="danger">
+                                <button id="closeAppChrome" class="ui-button danger">
                                     실행된 Chrome 종료
                                 </button>
-                                <button id="closeAllChrome" class="danger">
+                                <button id="closeAllChrome" class="ui-button danger">
                                     전체 Chrome 종료
                                 </button>
                             </div>
@@ -76,7 +86,7 @@
 
                         <div class="page-body">
                             <div class="workflow-overview">
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>1</span>
                                     <div>
                                         <strong>Chrome 열기</strong>
@@ -86,14 +96,14 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>2</span>
                                     <div>
                                         <strong>직접 로그인</strong>
                                         <small>Cretop에 로그인합니다.</small>
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>3</span>
                                     <div>
                                         <strong>완료 확인</strong>
@@ -103,7 +113,7 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>4</span>
                                     <div>
                                         <strong>작업 이동</strong>
@@ -113,7 +123,7 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>5</span>
                                     <div>
                                         <strong>Chrome 종료</strong>
@@ -138,7 +148,7 @@
                                 <h2>Cretop 검색결과 저장하기</h2>
                             </div>
                             <div class="panel-actions">
-                                <button id="captureTable" class="primary">
+                                <button id="captureTable" class="ui-button primary">
                                     현재 조건검색 테이블 저장
                                 </button>
                             </div>
@@ -146,7 +156,7 @@
 
                         <div class="page-body">
                             <div class="workflow-overview">
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>1</span>
                                     <div>
                                         <strong>조건검색</strong>
@@ -156,7 +166,7 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>2</span>
                                     <div>
                                         <strong>저장 설정</strong>
@@ -166,7 +176,7 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="workflow-overview-item">
+                                <div class="ui-step-card workflow-overview-item">
                                     <span>3</span>
                                     <div>
                                         <strong>CSV 저장</strong>
@@ -183,7 +193,7 @@
                                 <div class="form-grid">
                                     <label>
                                         <span>최대 페이지</span>
-                                        <input
+                                        <input class="ui-input"
                                             id="maxPages"
                                             type="number"
                                             min="1"
@@ -193,14 +203,14 @@
                                     <label class="file-field">
                                         <span>저장 파일</span>
                                         <div>
-                                            <input
+                                            <input class="ui-input"
                                                 id="captureOutput"
                                                 type="text"
                                                 readonly
                                             />
                                             <button
                                                 id="pickOutput"
-                                                class="secondary"
+                                                class="ui-button secondary"
                                             >
                                                 변경
                                             </button>
@@ -214,6 +224,92 @@
                     </div>
                 </section>
 
+                <section id="weekly-mezz" class="view">
+                    <div class="panel page-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <p class="eyebrow">KIND Disclosure Export</p>
+                                <h2>Weekly Mezz</h2>
+                            </div>
+                            <div class="panel-actions">
+                                <button id="runWeeklyMezz" class="ui-button primary">
+                                    엑셀 만들기
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="page-body">
+                            <div class="workflow-overview">
+                                <div class="ui-step-card workflow-overview-item">
+                                    <span>1</span>
+                                    <div>
+                                        <strong>기간 선택</strong>
+                                        <small>KIND 공시 조회 기간을 정합니다.</small>
+                                    </div>
+                                </div>
+                                <div class="ui-step-card workflow-overview-item">
+                                    <span>2</span>
+                                    <div>
+                                        <strong>HTML 수집</strong>
+                                        <small>메자닌 발행 공시 본문을 저장합니다.</small>
+                                    </div>
+                                </div>
+                                <div class="ui-step-card workflow-overview-item">
+                                    <span>3</span>
+                                    <div>
+                                        <strong>엑셀 저장</strong>
+                                        <small>옵션과 리픽싱 정보를 정리합니다.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <section class="page-section control-section">
+                                <h3>실행 설정</h3>
+                                <div class="form-grid">
+                                    <label>
+                                        <span>시작일</span>
+                                        <input class="ui-input" id="weeklyMezzFrom" type="date" />
+                                    </label>
+                                    <label>
+                                        <span>종료일</span>
+                                        <input class="ui-input" id="weeklyMezzTo" type="date" />
+                                    </label>
+                                    <label>
+                                        <span>OpenDART API Key</span>
+                                        <input class="ui-input"
+                                            id="weeklyMezzApiKey"
+                                            type="password"
+                                            placeholder="종목코드 매핑용, 비워도 실행"
+                                        />
+                                    </label>
+                                    <label class="checkbox-field">
+                                        <span>최종보고서만</span>
+                                        <input class="ui-checkbox" id="weeklyMezzLastOnly" type="checkbox" />
+                                    </label>
+                                    <label class="file-field wide">
+                                        <span>저장 파일</span>
+                                        <div>
+                                            <input class="ui-input"
+                                                id="weeklyMezzOutput"
+                                                type="text"
+                                                readonly
+                                            />
+                                            <button
+                                                id="pickWeeklyMezzOutput"
+                                                class="ui-button secondary"
+                                            >
+                                                변경
+                                            </button>
+                                        </div>
+                                    </label>
+                                </div>
+                            </section>
+
+                            <div data-info="weeklyMezz"></div>
+                        </div>
+                    </div>
+                </section>
+
                 <section id="ppt-forger" class="view">
                     <div class="panel page-panel">
                         <div class="panel-heading">
@@ -222,7 +318,7 @@
                                 <h2>PPT Forger</h2>
                             </div>
                             <div class="panel-actions">
-                                <button id="openPptSettings" class="secondary">
+                                <button id="openPptSettings" class="ui-button secondary">
                                     설정
                                 </button>
                             </div>
@@ -232,7 +328,7 @@
                             <section class="ppt-workbench">
                                 <div class="workflow-overview">
                                     <button
-                                        class="workflow-overview-item active"
+                                        class="ui-step-card workflow-overview-item active"
                                         type="button"
                                         data-ppt-step="source"
                                         aria-current="step"
@@ -247,7 +343,7 @@
                                         </div>
                                     </button>
                                     <button
-                                        class="workflow-overview-item"
+                                        class="ui-step-card workflow-overview-item"
                                         type="button"
                                         data-ppt-step="shareholders"
                                         aria-current="false"
@@ -262,7 +358,7 @@
                                         </div>
                                     </button>
                                     <button
-                                        class="workflow-overview-item"
+                                        class="ui-step-card workflow-overview-item"
                                         type="button"
                                         data-ppt-step="copy"
                                         aria-current="false"
@@ -277,7 +373,7 @@
                                         </div>
                                     </button>
                                     <button
-                                        class="workflow-overview-item"
+                                        class="ui-step-card workflow-overview-item"
                                         type="button"
                                         data-ppt-step="review"
                                         aria-current="false"
@@ -294,12 +390,12 @@
                                 </div>
 
                                 <div
-                                    class="ppt-tabs"
+                                    class="ui-segmented ppt-tabs"
                                     role="tablist"
                                     aria-label="PPT Forger 작업 영역"
                                 >
                                     <button
-                                        class="ppt-tab active"
+                                        class="ui-segmented-button ppt-tab active"
                                         type="button"
                                         role="tab"
                                         data-ppt-tab="source"
@@ -310,7 +406,7 @@
                                         기본 입력
                                     </button>
                                     <button
-                                        class="ppt-tab"
+                                        class="ui-segmented-button ppt-tab"
                                         type="button"
                                         role="tab"
                                         data-ppt-tab="shareholders"
@@ -318,10 +414,10 @@
                                         aria-controls="pptPanelShareholders"
                                         aria-selected="false"
                                     >
-                                        주주
+                                        지분구조 분석
                                     </button>
                                     <button
-                                        class="ppt-tab"
+                                        class="ui-segmented-button ppt-tab"
                                         type="button"
                                         role="tab"
                                         data-ppt-tab="copy"
@@ -332,7 +428,7 @@
                                         AI 문구
                                     </button>
                                     <button
-                                        class="ppt-tab"
+                                        class="ui-segmented-button ppt-tab"
                                         type="button"
                                         role="tab"
                                         data-ppt-tab="review"
@@ -346,7 +442,7 @@
 
                                 <section
                                     id="pptPanelSource"
-                                    class="ppt-tab-panel active"
+                                    class="ui-segmented-button ppt-tab -panel active"
                                     role="tabpanel"
                                     data-ppt-panel="source"
                                     aria-labelledby="pptTabSource"
@@ -359,7 +455,7 @@
                                                 주주 확인으로 넘어갑니다.
                                             </p>
                                         </div>
-                                        <button id="buildPptData" class="primary">
+                                        <button id="buildPptData" class="ui-button primary">
                                             데이터 만들기
                                         </button>
                                     </div>
@@ -369,7 +465,7 @@
                                             <div class="form-grid ppt-form-grid">
                                                 <label>
                                                     <span>종목코드</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptStockCode"
                                                         type="text"
                                                         inputmode="numeric"
@@ -379,7 +475,7 @@
                                                 </label>
                                                 <label>
                                                     <span>메자닌 종류</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptMezzType"
                                                         type="text"
                                                         placeholder="예: 전환사채(CB)"
@@ -387,7 +483,7 @@
                                                 </label>
                                                 <label>
                                                     <span>투자금액</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptInvestmentAmt"
                                                         type="text"
                                                         placeholder="예: 100"
@@ -395,7 +491,7 @@
                                                 </label>
                                                 <label>
                                                     <span>발행금액</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptIssueAmt"
                                                         type="text"
                                                         placeholder="예: 200"
@@ -408,7 +504,7 @@
                                             <div class="form-grid ppt-form-grid">
                                                 <label>
                                                     <span>Call 비율(%)</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptCallPercent"
                                                         type="number"
                                                         min="0"
@@ -418,7 +514,7 @@
                                                 </label>
                                                 <label>
                                                     <span>리픽싱 비율(%)</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptRefixingPercent"
                                                         type="number"
                                                         min="0"
@@ -428,24 +524,15 @@
                                                 </label>
                                                 <label>
                                                     <span>기발행 메자닌 주식수</span>
-                                                    <input
+                                                    <input class="ui-input"
                                                         id="pptPriorMezzanineShares"
                                                         type="text"
                                                         placeholder="없으면 비워둠"
                                                     />
                                                 </label>
-                                                <label>
-                                                    <span>표시 주주 수</span>
-                                                    <input
-                                                        id="pptMaxShareholders"
-                                                        type="number"
-                                                        min="1"
-                                                        value="10"
-                                                    />
-                                                </label>
                                                 <label class="checkbox-field">
                                                     <span>자사주 EB</span>
-                                                    <input
+                                                    <input class="ui-checkbox"
                                                         id="pptTreasuryEb"
                                                         type="checkbox"
                                                     />
@@ -458,14 +545,14 @@
                                                 <label class="file-field">
                                                     <span>Model.xlsx</span>
                                                     <div>
-                                                        <input
+                                                        <input class="ui-input"
                                                             id="pptExcel"
                                                             type="text"
                                                             readonly
                                                         />
                                                         <button
                                                             id="pickPptExcel"
-                                                            class="secondary"
+                                                            class="ui-button secondary"
                                                         >
                                                             선택
                                                         </button>
@@ -474,14 +561,14 @@
                                                 <label class="file-field">
                                                     <span>PPT 템플릿</span>
                                                     <div>
-                                                        <input
+                                                        <input class="ui-input"
                                                             id="pptTemplate"
                                                             type="text"
                                                             readonly
                                                         />
                                                         <button
                                                             id="pickPptTemplate"
-                                                            class="secondary"
+                                                            class="ui-button secondary"
                                                         >
                                                             선택
                                                         </button>
@@ -490,14 +577,14 @@
                                                 <label class="file-field wide">
                                                     <span>저장 파일</span>
                                                     <div>
-                                                        <input
+                                                        <input class="ui-input"
                                                             id="pptOutput"
                                                             type="text"
                                                             readonly
                                                         />
                                                         <button
                                                             id="pickPptOutput"
-                                                            class="secondary"
+                                                            class="ui-button secondary"
                                                         >
                                                             변경
                                                         </button>
@@ -510,7 +597,7 @@
 
                                 <section
                                     id="pptPanelShareholders"
-                                    class="ppt-tab-panel"
+                                    class="ui-segmented-button ppt-tab -panel"
                                     role="tabpanel"
                                     data-ppt-panel="shareholders"
                                     aria-labelledby="pptTabShareholders"
@@ -518,15 +605,26 @@
                                 >
                                     <div class="section-heading">
                                         <div>
-                                            <h3>주주 편집</h3>
+                                            <h3>지분구조 분석</h3>
                                             <p>
                                                 데이터 생성 후 필요한 주주만
                                                 선택하고 순서를 조정합니다.
                                             </p>
                                         </div>
-                                        <button class="secondary" type="button" data-ppt-goto="copy">
+                                        <button class="ui-button secondary" type="button" data-ppt-goto="copy">
                                             AI 문구로 이동
                                         </button>
+                                    </div>
+                                    <div class="shareholder-controls">
+                                        <label>
+                                            <span>표시 주주 수</span>
+                                            <input class="ui-input"
+                                                id="pptMaxShareholders"
+                                                type="number"
+                                                min="1"
+                                                value="10"
+                                            />
+                                        </label>
                                     </div>
                                     <div class="table-wrap">
                                         <table class="data-table">
@@ -556,7 +654,7 @@
 
                                 <section
                                     id="pptPanelCopy"
-                                    class="ppt-tab-panel"
+                                    class="ui-segmented-button ppt-tab -panel"
                                     role="tabpanel"
                                     data-ppt-panel="copy"
                                     aria-labelledby="pptTabCopy"
@@ -572,7 +670,7 @@
                                         </div>
                                         <button
                                             id="generateGeminiText"
-                                            class="primary"
+                                            class="ui-button primary"
                                             type="button"
                                         >
                                             AI 문구 생성
@@ -584,39 +682,39 @@
                                             <div class="form-grid ppt-form-grid">
                                                 <label>
                                                     <span>투자포인트 1 제목</span>
-                                                    <input id="investmentTextTitle1" type="text" />
+                                                    <input class="ui-input" id="investmentTextTitle1" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 1 내용 A</span>
-                                                    <input id="investmentTextContents11" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents11" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 1 내용 B</span>
-                                                    <input id="investmentTextContents12" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents12" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 2 제목</span>
-                                                    <input id="investmentTextTitle2" type="text" />
+                                                    <input class="ui-input" id="investmentTextTitle2" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 2 내용 A</span>
-                                                    <input id="investmentTextContents21" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents21" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 2 내용 B</span>
-                                                    <input id="investmentTextContents22" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents22" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 3 제목</span>
-                                                    <input id="investmentTextTitle3" type="text" />
+                                                    <input class="ui-input" id="investmentTextTitle3" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 3 내용 A</span>
-                                                    <input id="investmentTextContents31" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents31" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>투자포인트 3 내용 B</span>
-                                                    <input id="investmentTextContents32" type="text" />
+                                                    <input class="ui-input" id="investmentTextContents32" type="text" />
                                                 </label>
                                             </div>
                                         </section>
@@ -625,11 +723,11 @@
                                             <div class="form-grid ppt-form-grid">
                                                 <label>
                                                     <span>주가 포인트 1</span>
-                                                    <input id="priceTextTitle1" type="text" />
+                                                    <input class="ui-input" id="priceTextTitle1" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>주가 포인트 2</span>
-                                                    <input id="priceTextTitle2" type="text" />
+                                                    <input class="ui-input" id="priceTextTitle2" type="text" />
                                                 </label>
                                             </div>
                                         </section>
@@ -638,19 +736,19 @@
                                             <div class="form-grid ppt-form-grid">
                                                 <label>
                                                     <span>리스크 1 제목</span>
-                                                    <input id="riskTextTitle1" type="text" />
+                                                    <input class="ui-input" id="riskTextTitle1" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>리스크 1 내용</span>
-                                                    <input id="riskTextContents11" type="text" />
+                                                    <input class="ui-input" id="riskTextContents11" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>리스크 2 제목</span>
-                                                    <input id="riskTextTitle2" type="text" />
+                                                    <input class="ui-input" id="riskTextTitle2" type="text" />
                                                 </label>
                                                 <label>
                                                     <span>리스크 2 내용</span>
-                                                    <input id="riskTextContents21" type="text" />
+                                                    <input class="ui-input" id="riskTextContents21" type="text" />
                                                 </label>
                                             </div>
                                         </section>
@@ -659,7 +757,7 @@
 
                                 <section
                                     id="pptPanelReview"
-                                    class="ppt-tab-panel"
+                                    class="ui-segmented-button ppt-tab -panel"
                                     role="tabpanel"
                                     data-ppt-panel="review"
                                     aria-labelledby="pptTabReview"
@@ -669,11 +767,11 @@
                                         <div>
                                             <h3>결과 검토</h3>
                                             <p>
-                                                생성된 요약과 치환 데이터를
+                                                생성된 요약과 지분율 데이터를
                                                 마지막으로 확인합니다.
                                             </p>
                                         </div>
-                                        <button id="generatePpt" class="primary">
+                                        <button id="generatePpt" class="ui-button primary">
                                             PPT 생성
                                         </button>
                                     </div>
@@ -759,27 +857,8 @@
                                                 </table>
                                             </div>
                                         </section>
-                                        <section class="review-block wide">
-                                            <h4>치환 데이터 JSON</h4>
-                                            <label class="json-field">
-                                                <span
-                                                    >데이터 만들기 후 필요하면
-                                                    직접 수정할 수
-                                                    있습니다.</span
-                                                >
-                                                <textarea
-                                                    id="pptData"
-                                                    spellcheck="false"
-                                                >
-{
-  "corp_name": "",
-  "call_percent": "",
-  "refixing_percent": ""
-}</textarea
-                                                >
-                                            </label>
-                                        </section>
                                     </div>
+                                    <input id="pptData" type="hidden" value="" />
                                 </section>
                             </section>
 
@@ -796,19 +875,19 @@
                                 <h2>업데이트 조회</h2>
                             </div>
                             <div class="panel-actions">
-                                <button id="checkUpdates" class="primary">
+                                <button id="checkUpdates" class="ui-button primary">
                                     새 버전 확인
                                 </button>
                                 <button
                                     id="downloadUpdate"
-                                    class="secondary"
+                                    class="ui-button secondary"
                                     disabled
                                 >
                                     업데이트 다운로드
                                 </button>
                                 <button
                                     id="installUpdate"
-                                    class="primary"
+                                    class="ui-button primary"
                                     disabled
                                 >
                                     재시작 후 설치
@@ -843,7 +922,7 @@
                 <section class="log-panel">
                     <div class="panel-heading compact">
                         <h2>활동 로그</h2>
-                        <button id="clearLog" class="ghost">지우기</button>
+                        <button id="clearLog" class="ui-button ghost">지우기</button>
                     </div>
                     <ol id="logs" class="logs"></ol>
                 </section>
@@ -867,10 +946,10 @@
                         <h2 id="pptSettingsTitle">설정</h2>
                     </div>
                     <div class="panel-actions">
-                        <button id="saveGeminiSettings" class="primary">
+                        <button id="saveGeminiSettings" class="ui-button primary">
                             저장
                         </button>
-                        <button id="closePptSettings" class="secondary">
+                        <button id="closePptSettings" class="ui-button secondary">
                             닫기
                         </button>
                     </div>
@@ -883,14 +962,14 @@
                             <label class="file-field json-field">
                                 <span>템플릿 폴더</span>
                                 <div>
-                                    <input
+                                    <input class="ui-input"
                                         id="pptTemplateDir"
                                         type="text"
                                         readonly
                                     />
                                     <button
                                         id="pickPptTemplateDir"
-                                        class="secondary"
+                                        class="ui-button secondary"
                                     >
                                         선택
                                     </button>
@@ -905,7 +984,7 @@
                             <label class="file-field">
                                 <span>Gemini API 키</span>
                                 <div>
-                                    <input
+                                    <input class="ui-input"
                                         id="geminiApiKey"
                                         type="password"
                                         placeholder="Google AI Studio API Key"
@@ -914,7 +993,7 @@
                             </label>
                             <label>
                                 <span>투자포인트 모델</span>
-                                <input
+                                <input class="ui-input"
                                     id="geminiInvestmentModel"
                                     type="text"
                                     value="gemini-1.5-pro"
@@ -922,7 +1001,7 @@
                             </label>
                             <label>
                                 <span>보조 모델</span>
-                                <input
+                                <input class="ui-input"
                                     id="geminiFormattingModel"
                                     type="text"
                                     value="gemini-2.5-flash"
@@ -930,7 +1009,7 @@
                             </label>
                             <label class="checkbox-field">
                                 <span>Google Search Grounding</span>
-                                <input
+                                <input class="ui-checkbox"
                                     id="geminiUseSearch"
                                     type="checkbox"
                                     checked
@@ -938,7 +1017,7 @@
                             </label>
                             <label class="checkbox-field">
                                 <span>투자포인트 생성</span>
-                                <input
+                                <input class="ui-checkbox"
                                     id="generateInvestmentText"
                                     type="checkbox"
                                     checked
@@ -946,7 +1025,7 @@
                             </label>
                             <label class="checkbox-field">
                                 <span>주가 포인트 생성</span>
-                                <input
+                                <input class="ui-checkbox"
                                     id="generatePriceText"
                                     type="checkbox"
                                     checked
@@ -954,7 +1033,7 @@
                             </label>
                             <label class="checkbox-field">
                                 <span>리스크 생성</span>
-                                <input
+                                <input class="ui-checkbox"
                                     id="generateRiskText"
                                     type="checkbox"
                                     checked
@@ -965,45 +1044,86 @@
 
                     <section class="page-section control-section">
                         <h3>프롬프트</h3>
-                        <div class="form-grid ppt-form-grid">
-                            <label class="json-field prompt-field">
+                        <div class="prompt-switcher" aria-label="프롬프트 종류 선택">
+                            <button class="ui-button secondary prompt-arrow" type="button" data-prompt-step="-1">
+                                이전
+                            </button>
+                            <div class="ui-segmented prompt-tabs" role="tablist">
+                                <button
+                                    class="ui-segmented-button prompt-tab active"
+                                    type="button"
+                                    role="tab"
+                                    data-prompt-tab="investment"
+                                    aria-selected="true"
+                                >
+                                    투자포인트
+                                </button>
+                                <button
+                                    class="ui-segmented-button prompt-tab"
+                                    type="button"
+                                    role="tab"
+                                    data-prompt-tab="price"
+                                    aria-selected="false"
+                                >
+                                    주가 포인트
+                                </button>
+                                <button
+                                    class="ui-segmented-button prompt-tab"
+                                    type="button"
+                                    role="tab"
+                                    data-prompt-tab="risk"
+                                    aria-selected="false"
+                                >
+                                    리스크
+                                </button>
+                            </div>
+                            <button class="ui-button secondary prompt-arrow" type="button" data-prompt-step="1">
+                                다음
+                            </button>
+                        </div>
+                        <div class="prompt-panel active" data-prompt-panel="investment">
+                            <label class="prompt-field">
                                 <span>투자포인트 시스템 프롬프트</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="investmentSystemPrompt"
                                     spellcheck="false"
                                 ></textarea>
                             </label>
-                            <label class="json-field prompt-field">
+                            <label class="prompt-field">
                                 <span>투자포인트 추가 지침</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="investmentCustomPrompt"
                                     spellcheck="false"
                                 ></textarea>
                             </label>
-                            <label class="json-field prompt-field">
+                        </div>
+                        <div class="prompt-panel" data-prompt-panel="price" hidden>
+                            <label class="prompt-field">
                                 <span>주가 포인트 시스템 프롬프트</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="priceSystemPrompt"
                                     spellcheck="false"
                                 ></textarea>
                             </label>
-                            <label class="json-field prompt-field">
+                            <label class="prompt-field">
                                 <span>주가 포인트 추가 지침</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="priceCustomPrompt"
                                     spellcheck="false"
                                 ></textarea>
                             </label>
-                            <label class="json-field prompt-field">
+                        </div>
+                        <div class="prompt-panel" data-prompt-panel="risk" hidden>
+                            <label class="prompt-field">
                                 <span>리스크 시스템 프롬프트</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="riskSystemPrompt"
                                     spellcheck="false"
                                 ></textarea>
                             </label>
-                            <label class="json-field prompt-field">
+                            <label class="prompt-field">
                                 <span>리스크 추가 지침</span>
-                                <textarea
+                                <textarea class="ui-textarea"
                                     id="riskCustomPrompt"
                                     spellcheck="false"
                                 ></textarea>

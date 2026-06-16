@@ -3,6 +3,8 @@ const state = {
   captureOutput: "",
   pendingCapture: null,
   captureRunning: false,
+  weeklyMezzOutput: "",
+  weeklyMezzRunning: false,
   pptTemplateDir: "",
   pptTemplatePath: "",
   pptExcelPath: "",
@@ -19,10 +21,21 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 const PPT_STEPS = ["source", "shareholders", "copy", "review"];
+const PROMPT_PANELS = ["investment", "price", "risk"];
 
 const PAGE_INFO = {
   session: [],
   capture: [],
+  weeklyMezz: [
+    {
+      type: "boundary",
+      title: "수집 기준",
+      items: [
+        ["대상", "KIND의 주권 관련 사채권 발행 공시 중 전환사채, 교환사채, 신주인수권부사채 발행 건만 저장합니다."],
+        ["옵션/리픽싱", "KIND HTML 수집을 사용하되, 옵션 일정과 리픽싱 한도는 기존 안정 파서의 컬럼 계약을 함께 보존합니다."],
+      ],
+    },
+  ],
   ppt: [],
   updates: [
     {
@@ -147,6 +160,28 @@ function showPptTab(name) {
   });
 }
 
+function showPromptPanel(name) {
+  if (!PROMPT_PANELS.includes(name)) return;
+
+  $$(".prompt-tab").forEach((button) => {
+    const isActive = button.dataset.promptTab === name;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  $$(".prompt-panel").forEach((panel) => {
+    const isActive = panel.dataset.promptPanel === name;
+    panel.classList.toggle("active", isActive);
+    panel.hidden = !isActive;
+  });
+}
+
+function movePromptPanel(direction) {
+  const current = $(".prompt-tab.active")?.dataset.promptTab || PROMPT_PANELS[0];
+  const currentIndex = PROMPT_PANELS.indexOf(current);
+  const nextIndex = (currentIndex + direction + PROMPT_PANELS.length) % PROMPT_PANELS.length;
+  showPromptPanel(PROMPT_PANELS[nextIndex]);
+}
+
 function setUpdateStatus(payload) {
   const message = payload?.message || "대기 중";
   setText("#updateStatus", message);
@@ -179,6 +214,28 @@ function isExpiredError(error) {
 
 function inputValue(selector) {
   return $(selector).value.trim();
+}
+
+function formatDateInput(value) {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function compactDate(value) {
+  return value.replaceAll("-", "");
+}
+
+function defaultWeeklyMezzDates(today = new Date()) {
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const daysSinceMonday = end.getDay() === 1 ? 7 : (end.getDay() + 6) % 7;
+  const start = new Date(end);
+  start.setDate(end.getDate() - daysSinceMonday);
+  return {
+    from: formatDateInput(start),
+    to: formatDateInput(end),
+  };
 }
 
 function buildPptInputs() {
@@ -458,7 +515,7 @@ function renderPptPreview(result) {
   body.replaceChildren();
 
   const headerRow = document.createElement("tr");
-  ["구분", ...(result.ownershipCases || []).map((ownershipCase) => ownershipCase.label)].forEach((label) => {
+  ["구분", ...(result.ownershipCases || []).flatMap((ownershipCase) => [`${ownershipCase.label} 주식수`, `${ownershipCase.label} 지분율`])].forEach((label) => {
     const cell = document.createElement("th");
     cell.textContent = label;
     headerRow.append(cell);
@@ -480,12 +537,14 @@ function renderPptPreview(result) {
     row.append(nameCell);
 
     (result.ownershipCases || []).forEach((ownershipCase) => {
-      const cell = document.createElement("td");
       const ownershipRow = ownershipCase.rows.find((item) => item.name === name);
       const shares = name === "합계" ? ownershipCase.totalShares : ownershipRow?.shares || 0;
       const ratio = ownershipCase.denominatorShares > 0 ? (shares / ownershipCase.denominatorShares) * 100 : 0;
-      cell.textContent = shares > 0 || name === "합계" ? `${shares.toLocaleString()} / ${ratio.toFixed(1)}%` : "-";
-      row.append(cell);
+      const sharesCell = document.createElement("td");
+      const ratioCell = document.createElement("td");
+      sharesCell.textContent = shares > 0 || name === "합계" ? shares.toLocaleString() : "-";
+      ratioCell.textContent = shares > 0 || name === "합계" ? `${ratio.toFixed(1)}%` : "-";
+      row.append(sharesCell, ratioCell);
     });
 
     body.append(row);
@@ -522,7 +581,7 @@ async function loadPptSourceData() {
   }
 }
 
-async function buildPptData() {
+async function buildPptData(nextTab = "shareholders") {
   $("#buildPptData").disabled = true;
   try {
     const sourceData = await loadPptSourceData();
@@ -544,7 +603,7 @@ async function buildPptData() {
     state.pptData = result.data;
     $("#pptData").value = JSON.stringify(result.data, null, 2);
     renderPptPreview(result);
-    showPptTab("review");
+    showPptTab(nextTab);
     addLog(`PPT 치환 데이터를 만들었습니다: ${result.data.corp_name || inputs.stock_code}`);
     if (excelData.missingFinancials?.length) {
       addLog(`Model.xlsx에서 찾지 못한 재무 항목: ${excelData.missingFinancials.join(", ")}`);
@@ -583,7 +642,7 @@ async function generateGeminiText() {
     applyAiText(result.aiText);
     showPptTab("copy");
     addLog("Gemini 문구를 생성하고 입력칸에 반영했습니다.");
-    await buildPptData();
+    await buildPptData("copy");
     return result.aiText;
   } catch (error) {
     addLog(error.message);
@@ -625,14 +684,61 @@ async function runCapture(payload, resumed = false) {
   }
 }
 
+async function runWeeklyMezz() {
+  if (state.weeklyMezzRunning) return;
+
+  const fromDate = inputValue("#weeklyMezzFrom");
+  const toDate = inputValue("#weeklyMezzTo");
+  if (!fromDate || !toDate) {
+    window.alert("조회 시작일과 종료일을 입력하세요.");
+    return;
+  }
+  if (fromDate > toDate) {
+    window.alert("시작일은 종료일보다 늦을 수 없습니다.");
+    return;
+  }
+  if (!state.weeklyMezzOutput) {
+    window.alert("저장 파일을 선택하세요.");
+    return;
+  }
+
+  state.weeklyMezzRunning = true;
+  $("#runWeeklyMezz").disabled = true;
+  addLog(`Weekly Mezz 수집을 시작합니다: ${fromDate} ~ ${toDate}`);
+  try {
+    const result = await window.maxawon.weeklyMezzCollect({
+      fromDate: compactDate(fromDate),
+      toDate: compactDate(toDate),
+      outputPath: state.weeklyMezzOutput,
+      lastReportOnly: $("#weeklyMezzLastOnly").checked,
+      apiKey: inputValue("#weeklyMezzApiKey"),
+    });
+    const summary = result.summary || {};
+    addLog(`Weekly Mezz 엑셀을 저장했습니다: ${result.outputPath}`);
+    addLog(`검색 ${summary.total_count || 0}건, 필터 ${summary.filtered_count || 0}건, 저장 ${summary.exported_count || 0}건`);
+    if (result.rawPath) addLog(`원본 JSON을 저장했습니다: ${result.rawPath}`);
+  } catch (error) {
+    addLog(error.message);
+    window.alert(error.message);
+  } finally {
+    state.weeklyMezzRunning = false;
+    $("#runWeeklyMezz").disabled = false;
+  }
+}
+
 async function init() {
   renderPageInfo();
 
   const defaults = await window.maxawon.getDefaults();
   state.captureOutput = defaults.defaultCaptureOutput;
+  state.weeklyMezzOutput = defaults.defaultWeeklyMezzOutput;
   state.pptOutputPath = defaults.defaultPptOutput;
   $("#captureOutput").value = defaults.defaultCaptureOutput;
+  $("#weeklyMezzOutput").value = defaults.defaultWeeklyMezzOutput;
   $("#pptOutput").value = defaults.defaultPptOutput;
+  const weeklyMezzDates = defaultWeeklyMezzDates();
+  $("#weeklyMezzFrom").value = weeklyMezzDates.from;
+  $("#weeklyMezzTo").value = weeklyMezzDates.to;
   if (defaults.appVersion) {
     setText("#appVersion", `v${defaults.appVersion}`);
     setText("#currentVersion", `v${defaults.appVersion}`);
@@ -658,6 +764,14 @@ async function init() {
 
   $$(".ppt-tab").forEach((button) => {
     button.addEventListener("click", () => showPptTab(button.dataset.pptTab));
+  });
+
+  $$(".prompt-tab").forEach((button) => {
+    button.addEventListener("click", () => showPromptPanel(button.dataset.promptTab));
+  });
+
+  $$("[data-prompt-step]").forEach((button) => {
+    button.addEventListener("click", () => movePromptPanel(Number(button.dataset.promptStep)));
   });
 
   $$("#ppt-forger .workflow-overview-item").forEach((button) => {
@@ -724,6 +838,18 @@ async function init() {
       maxPages,
       outputPath: state.captureOutput,
     });
+  });
+
+  $("#pickWeeklyMezzOutput").addEventListener("click", async () => {
+    const selected = await runAction(() => window.maxawon.pickWeeklyMezzOutput(state.weeklyMezzOutput));
+    if (!selected) return;
+    state.weeklyMezzOutput = selected;
+    $("#weeklyMezzOutput").value = selected;
+    addLog(`Weekly Mezz 저장 파일을 변경했습니다: ${selected}`);
+  });
+
+  $("#runWeeklyMezz").addEventListener("click", async () => {
+    await runWeeklyMezz();
   });
 
   $("#pickPptTemplate").addEventListener("click", async () => {
@@ -801,13 +927,8 @@ async function init() {
       return;
     }
 
-    let data;
-    try {
-      data = JSON.parse($("#pptData").value);
-    } catch (_error) {
-      data = await buildPptData();
-      if (!data) return;
-    }
+    const data = await buildPptData("review");
+    if (!data) return;
     if (!data || typeof data !== "object" || Array.isArray(data)) {
       window.alert("치환 데이터는 JSON 객체여야 합니다.");
       return;

@@ -26,25 +26,6 @@ body {
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  letter-spacing: 0;
-}
-
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-button {
-  border: 0;
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
 }
 
 .app-shell {
@@ -90,7 +71,7 @@ button:disabled {
 .brand small {
   margin-top: 2px;
   color: #9ca3af;
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
 }
 
 .nav {
@@ -108,33 +89,32 @@ button:disabled {
 .nav-section-label {
   padding: 0 14px;
   color: #94a3b8;
-  font-size: 11px;
+  font-size: var(--ui-text-xs);
   font-weight: 850;
-  letter-spacing: 0;
 }
 
 .app-version {
   margin-top: auto;
   color: #9ca3af;
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   font-weight: 700;
 }
 
 .nav-button {
   width: 100%;
-  min-height: 44px;
+  min-height: var(--ui-control-height-lg);
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--ui-control-radius);
   background: transparent;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: var(--ui-text-md);
   font-weight: 700;
-  line-height: 1.35;
+  line-height: var(--ui-line-normal);
   text-align: left;
 }
 
 .nav-page {
-  min-height: 42px;
+  min-height: var(--ui-control-height-md);
   color: #cbd5e1;
 }
 
@@ -178,26 +158,24 @@ textarea {
 .eyebrow {
   margin: 0 0 6px;
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   font-weight: 800;
-  letter-spacing: 0;
   text-transform: uppercase;
 }
 
 h1,
 h2 {
   margin: 0;
-  letter-spacing: 0;
 }
 
 h1 {
-  font-size: 30px;
+  font-size: var(--ui-title-md);
   line-height: 1.15;
 }
 
 h2 {
-  font-size: 20px;
-  line-height: 1.25;
+  font-size: var(--ui-title-sm);
+  line-height: var(--ui-line-tight);
 }
 
 .panel-actions {
@@ -223,6 +201,7 @@ h2 {
 
 #session.view.active,
 #capture.view.active,
+#weekly-mezz.view.active,
 #ppt-forger.view.active,
 #updates.view.active {
   align-content: start;
@@ -234,7 +213,7 @@ h2 {
 .detail-list dt,
 label span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   font-weight: 700;
 }
 
@@ -281,16 +260,16 @@ label span {
 
 .page-section h3 {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.35;
+  font-size: var(--ui-text-xl);
+  line-height: var(--ui-line-normal);
 }
 
 .page-section summary {
   cursor: pointer;
   color: var(--text);
-  font-size: 14px;
+  font-size: var(--ui-text-lg);
   font-weight: 800;
-  line-height: 1.35;
+  line-height: var(--ui-line-normal);
 }
 
 .section-heading {
@@ -303,7 +282,7 @@ label span {
 
 .section-heading h3 {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--ui-text-2xl);
   line-height: 1.3;
 }
 
@@ -334,8 +313,8 @@ label span {
 .section-heading p {
   margin: 5px 0 0;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
+  font-size: var(--ui-text-md);
+  line-height: var(--ui-line-relaxed);
 }
 
 .panel-heading.compact {
@@ -346,10 +325,12 @@ label span {
 .secondary,
 .danger,
 .ghost {
-  min-height: 40px;
-  border-radius: 10px;
-  padding: 0 16px;
+  min-height: var(--ui-control-height-md);
+  border-radius: var(--ui-control-radius);
+  padding: 0 var(--ui-button-padding-x);
+  font-size: var(--ui-text-md);
   font-weight: 750;
+  line-height: var(--ui-line-normal);
 }
 
 .primary {
@@ -395,42 +376,6 @@ label span {
 label {
   display: grid;
   gap: 8px;
-}
-
-input,
-textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface-soft);
-  color: var(--text);
-  font-size: 13px;
-  line-height: 1.35;
-  outline: none;
-}
-
-input {
-  height: 42px;
-  padding: 0 12px;
-}
-
-textarea {
-  min-height: 220px;
-  padding: 12px;
-  resize: vertical;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.prompt-field textarea {
-  min-height: 112px;
-}
-
-input:focus,
-textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 }
 
 .file-field > div {
@@ -513,7 +458,7 @@ button.workflow-overview-item.complete > span {
   border-radius: 999px;
   background: #e0ecff;
   color: var(--accent-strong);
-  font-size: 13px;
+  font-size: var(--ui-text-md);
   font-weight: 850;
 }
 
@@ -533,13 +478,13 @@ button.workflow-overview-item.complete > span {
 }
 
 .workflow-overview-item strong {
-  font-size: 14px;
+  font-size: var(--ui-text-lg);
 }
 
 .workflow-overview-item small {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   line-height: 1.45;
 }
 
@@ -554,11 +499,11 @@ button.workflow-overview-item.complete > span {
 
 .ppt-tab {
   flex: 1 1 0;
-  min-height: 38px;
+  min-height: var(--ui-tab-height);
   border-radius: 8px;
   background: transparent;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--ui-text-md);
   font-weight: 800;
 }
 
@@ -610,8 +555,8 @@ button.workflow-overview-item.complete > span {
 
 .ppt-field-group h4 {
   margin: 0 0 12px;
-  font-size: 13px;
-  line-height: 1.35;
+  font-size: var(--ui-text-md);
+  line-height: var(--ui-line-normal);
 }
 
 .ppt-field-group .ppt-form-grid {
@@ -620,6 +565,12 @@ button.workflow-overview-item.complete > span {
 
 .ppt-field-group .file-field.wide {
   grid-column: 1 / -1;
+}
+
+.shareholder-controls {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px);
+  margin-bottom: 14px;
 }
 
 .review-grid {
@@ -642,8 +593,15 @@ button.workflow-overview-item.complete > span {
 
 .review-block h4 {
   margin: 0 0 12px;
-  font-size: 14px;
-  line-height: 1.35;
+  font-size: var(--ui-text-lg);
+  line-height: var(--ui-line-normal);
+}
+
+#pptPanelReview .detail-list,
+#pptPanelReview .detail-list dt,
+#pptPanelReview .detail-list dd {
+  font-size: var(--ui-text-md);
+  line-height: 1.45;
 }
 
 #ppt-forger .guide-section,
@@ -665,13 +623,78 @@ button.workflow-overview-item.complete > span {
 }
 
 .checkbox-field {
-  align-content: start;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--ui-control-height-md);
 }
 
 .checkbox-field input {
-  width: 18px;
-  height: 18px;
-  margin: 12px 0 0;
+  flex: 0 0 auto;
+  width: var(--ui-checkbox-size);
+  height: var(--ui-checkbox-size);
+  margin: 0;
+}
+
+.prompt-switcher {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.prompt-tabs {
+  display: flex;
+  min-width: 0;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.prompt-tab {
+  flex: 1 1 0;
+  min-height: var(--ui-tab-height-compact);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--ui-text-md);
+  font-weight: 800;
+}
+
+.prompt-tab:hover {
+  background: #edf2f7;
+  color: var(--text);
+}
+
+.prompt-tab.active {
+  background: var(--surface);
+  color: var(--accent-strong);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.prompt-arrow {
+  min-width: 64px;
+}
+
+.prompt-panel {
+  display: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.prompt-panel.active {
+  display: grid;
+}
+
+.prompt-panel[hidden] {
+  display: none;
+}
+
+.prompt-field textarea {
+  min-height: var(--ui-textarea-min-height-compact);
 }
 
 .table-wrap {
@@ -682,7 +705,7 @@ button.workflow-overview-item.complete > span {
   width: 100%;
   min-width: 860px;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--ui-text-md);
 }
 
 .ownership-preview-table {
@@ -702,25 +725,25 @@ button.workflow-overview-item.complete > span {
 
 .data-table th {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   text-align: left;
 }
 
 .data-table input[type="text"],
 .data-table input:not([type]) {
-  height: 34px;
+  height: var(--ui-control-height-sm);
 }
 
 .data-table input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: var(--ui-checkbox-size);
+  height: var(--ui-checkbox-size);
 }
 
 .table-button {
-  min-height: 32px;
+  min-height: var(--ui-control-height-xs);
   margin-right: 6px;
   padding: 0 10px;
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
 }
 
 .modal-overlay {
@@ -787,7 +810,7 @@ button.workflow-overview-item.complete > span {
 .boundary-list dt,
 .page-section label span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--ui-text-sm);
   font-weight: 700;
 }
 
@@ -796,7 +819,7 @@ button.workflow-overview-item.complete > span {
 .page-section ul {
   margin: 0;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--ui-text-lg);
   line-height: 1.7;
 }
 
@@ -811,7 +834,7 @@ button.workflow-overview-item.complete > span {
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--ui-text-md);
   font-weight: 750;
 }
 
@@ -850,7 +873,7 @@ button.workflow-overview-item.complete > span {
   border-radius: 10px;
   background: var(--surface-soft);
   color: var(--text);
-  font-size: 13px;
+  font-size: var(--ui-text-md);
 }
 
 .logs time {

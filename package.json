@@ -69,6 +69,36 @@
         ]
       },
       {
+        "from": "src/weekly_mezz",
+        "to": "src/weekly_mezz",
+        "filter": [
+          "**/*.py"
+        ]
+      },
+      {
+        "from": "src/logics",
+        "to": "src/logics",
+        "filter": [
+          "**/*.py"
+        ]
+      },
+      {
+        "from": "src/parsing_utils.py",
+        "to": "src/parsing_utils.py"
+      },
+      {
+        "from": "src/mezzanine_parser.py",
+        "to": "src/mezzanine_parser.py"
+      },
+      {
+        "from": "src/participant_parser.py",
+        "to": "src/participant_parser.py"
+      },
+      {
+        "from": "src/xml_loader.py",
+        "to": "src/xml_loader.py"
+      },
+      {
         "from": "templates",
         "to": "templates",
         "filter": [

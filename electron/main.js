@@ -13,6 +13,7 @@ const profileDir = path.join(runtimeRoot, "chrome-profile");
 const defaultCaptureOutput = path.join(runtimeRoot, "output", "maxawon_condition_search.csv");
 const networkLogDir = path.join(runtimeRoot, "network-logs");
 const defaultPptOutput = path.join(os.homedir(), "Downloads", `Deal_Summary_${Date.now()}.pptx`);
+const defaultWeeklyMezzOutput = path.join(os.homedir(), "Downloads", `weekly_mezz_${Date.now()}.xlsx`);
 const pptForgerSettingsPath = path.join(runtimeRoot, "ppt-forger-settings.json");
 const defaultPptTemplateDir = path.join(app.isPackaged ? process.resourcesPath : projectRoot, "templates", "Deal_Summary_Template_1.0");
 const remoteDebuggingPort = "9222";
@@ -380,6 +381,7 @@ function findChrome() {
 ipcMain.handle("app:get-defaults", () => ({
   defaultCaptureOutput,
   defaultPptOutput,
+  defaultWeeklyMezzOutput,
   cdpUrl: `http://127.0.0.1:${remoteDebuggingPort}`,
   networkLogDir,
   appVersion: getProjectVersion(),
@@ -531,6 +533,20 @@ ipcMain.handle("app:pick-ppt-output", async (_event, currentPath) => {
   return result.filePath;
 });
 
+ipcMain.handle("app:pick-weekly-mezz-output", async (_event, currentPath) => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: "주간 메자닌 엑셀 저장",
+    defaultPath: currentPath || defaultWeeklyMezzOutput,
+    filters: [
+      { name: "Excel", extensions: ["xlsx"] },
+      { name: "All files", extensions: ["*"] },
+    ],
+  });
+
+  if (result.canceled || !result.filePath) return null;
+  return result.filePath;
+});
+
 function resolvePptTemplateFiles(templateDir) {
   if (!templateDir) return { templateDir: "", modelPath: "", templatePath: "" };
   const modelPath = path.join(templateDir, "Model.xlsx");
@@ -649,5 +665,43 @@ print(json.dumps({
 }, ensure_ascii=False))
 `,
     [payload.maxPages == null ? "" : String(payload.maxPages), payload.outputPath],
+  ),
+);
+
+ipcMain.handle("app:weekly-mezz-collect", (_event, payload) =>
+  runPython(
+    `
+import json
+import sys
+from pathlib import Path
+from weekly_mezz.cli import collect_and_export, parse_yyyymmdd
+
+start_date = parse_yyyymmdd(sys.argv[1])
+end_date = parse_yyyymmdd(sys.argv[2])
+output_path = Path(sys.argv[3]).expanduser()
+last_reprt_at = sys.argv[4] or "N"
+api_key = sys.argv[5] or None
+
+result = collect_and_export(
+    start_date,
+    end_date,
+    output_path,
+    api_key=api_key,
+    last_reprt_at=last_reprt_at,
+)
+print(json.dumps({
+    "outputPath": str(result.output_path),
+    "rawPath": str(result.raw_path) if result.raw_path else "",
+    "auditPath": str(result.audit_path) if result.audit_path else "",
+    "summary": result.summary,
+}, ensure_ascii=False))
+`,
+    [
+      payload.fromDate,
+      payload.toDate,
+      payload.outputPath,
+      payload.lastReportOnly ? "Y" : "N",
+      payload.apiKey || "",
+    ],
   ),
 );
