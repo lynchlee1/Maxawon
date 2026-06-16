@@ -185,6 +185,11 @@ function showView(name) {
   });
 }
 
+function setPptSettingsOpen(open) {
+  $("#pptSettingsOverlay").classList.toggle("hidden", !open);
+  $("#pptSettingsOverlay").setAttribute("aria-hidden", String(!open));
+}
+
 function setUpdateStatus(payload) {
   const message = payload?.message || "대기 중";
   setText("#updateStatus", message);
@@ -677,10 +682,26 @@ async function init() {
     await buildPptData();
   });
 
+  $("#openPptSettings").addEventListener("click", () => {
+    setPptSettingsOpen(true);
+  });
+
+  $("#closePptSettings").addEventListener("click", () => {
+    setPptSettingsOpen(false);
+  });
+
+  $("#pptSettingsOverlay").addEventListener("click", (event) => {
+    if (event.target === $("#pptSettingsOverlay")) {
+      setPptSettingsOpen(false);
+    }
+  });
+
   $("#saveGeminiSettings").addEventListener("click", async () => {
     const result = await runAction(() => window.maxawon.pptSaveGeminiSettings(buildGeminiSettings()));
     if (!result) return;
+    applyTemplateFiles(result);
     addLog("Gemini 설정을 저장했습니다.");
+    setPptSettingsOpen(false);
   });
 
   $("#generateGeminiText").addEventListener("click", async () => {

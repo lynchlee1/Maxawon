@@ -109,6 +109,7 @@
                 <h2>PPT Forger</h2>
               </div>
               <div class="panel-actions">
+                <button id="openPptSettings" class="secondary">설정</button>
                 <button id="generateGeminiText" class="secondary">AI 문구 생성</button>
                 <button id="buildPptData" class="secondary">데이터 만들기</button>
                 <button id="generatePpt" class="primary">PPT 생성</button>
@@ -154,13 +155,6 @@
                   <label class="checkbox-field">
                     <span>자사주 EB</span>
                     <input id="pptTreasuryEb" type="checkbox" />
-                  </label>
-                  <label class="file-field">
-                    <span>템플릿 폴더</span>
-                    <div>
-                      <input id="pptTemplateDir" type="text" readonly />
-                      <button id="pickPptTemplateDir" class="secondary">선택</button>
-                    </div>
                   </label>
                   <label class="file-field">
                     <span>Model.xlsx</span>
@@ -213,61 +207,6 @@
               <section class="page-section control-section">
                 <h3>AI 문구</h3>
                 <div class="form-grid ppt-form-grid">
-                  <label class="file-field">
-                    <span>Gemini API 키</span>
-                    <div>
-                      <input id="geminiApiKey" type="password" placeholder="Google AI Studio API Key" />
-                      <button id="saveGeminiSettings" class="secondary">저장</button>
-                    </div>
-                  </label>
-                  <label>
-                    <span>투자포인트 모델</span>
-                    <input id="geminiInvestmentModel" type="text" value="gemini-1.5-pro" />
-                  </label>
-                  <label>
-                    <span>보조 모델</span>
-                    <input id="geminiFormattingModel" type="text" value="gemini-2.5-flash" />
-                  </label>
-                  <label class="checkbox-field">
-                    <span>Google Search Grounding</span>
-                    <input id="geminiUseSearch" type="checkbox" checked />
-                  </label>
-                  <label class="checkbox-field">
-                    <span>투자포인트 생성</span>
-                    <input id="generateInvestmentText" type="checkbox" checked />
-                  </label>
-                  <label class="checkbox-field">
-                    <span>주가 포인트 생성</span>
-                    <input id="generatePriceText" type="checkbox" checked />
-                  </label>
-                  <label class="checkbox-field">
-                    <span>리스크 생성</span>
-                    <input id="generateRiskText" type="checkbox" checked />
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>투자포인트 시스템 프롬프트</span>
-                    <textarea id="investmentSystemPrompt" spellcheck="false"></textarea>
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>투자포인트 추가 지침</span>
-                    <textarea id="investmentCustomPrompt" spellcheck="false"></textarea>
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>주가 포인트 시스템 프롬프트</span>
-                    <textarea id="priceSystemPrompt" spellcheck="false"></textarea>
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>주가 포인트 추가 지침</span>
-                    <textarea id="priceCustomPrompt" spellcheck="false"></textarea>
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>리스크 시스템 프롬프트</span>
-                    <textarea id="riskSystemPrompt" spellcheck="false"></textarea>
-                  </label>
-                  <label class="json-field prompt-field">
-                    <span>리스크 추가 지침</span>
-                    <textarea id="riskCustomPrompt" spellcheck="false"></textarea>
-                  </label>
                   <label>
                     <span>투자포인트 1 제목</span>
                     <input id="investmentTextTitle1" type="text" />
@@ -394,6 +333,102 @@
           <ol id="logs" class="logs"></ol>
         </section>
       </main>
+    </div>
+
+    <div id="pptSettingsOverlay" class="modal-overlay hidden" aria-hidden="true">
+      <section class="settings-dialog" role="dialog" aria-modal="true" aria-labelledby="pptSettingsTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">PPT Forger</p>
+            <h2 id="pptSettingsTitle">설정</h2>
+          </div>
+          <div class="panel-actions">
+            <button id="saveGeminiSettings" class="primary">저장</button>
+            <button id="closePptSettings" class="secondary">닫기</button>
+          </div>
+        </div>
+
+        <div class="settings-body">
+          <section class="page-section control-section">
+            <h3>파일 기본값</h3>
+            <div class="form-grid ppt-form-grid">
+              <label class="file-field json-field">
+                <span>템플릿 폴더</span>
+                <div>
+                  <input id="pptTemplateDir" type="text" readonly />
+                  <button id="pickPptTemplateDir" class="secondary">선택</button>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <section class="page-section control-section">
+            <h3>Gemini</h3>
+            <div class="form-grid ppt-form-grid">
+              <label class="file-field">
+                <span>Gemini API 키</span>
+                <div>
+                  <input id="geminiApiKey" type="password" placeholder="Google AI Studio API Key" />
+                </div>
+              </label>
+              <label>
+                <span>투자포인트 모델</span>
+                <input id="geminiInvestmentModel" type="text" value="gemini-1.5-pro" />
+              </label>
+              <label>
+                <span>보조 모델</span>
+                <input id="geminiFormattingModel" type="text" value="gemini-2.5-flash" />
+              </label>
+              <label class="checkbox-field">
+                <span>Google Search Grounding</span>
+                <input id="geminiUseSearch" type="checkbox" checked />
+              </label>
+              <label class="checkbox-field">
+                <span>투자포인트 생성</span>
+                <input id="generateInvestmentText" type="checkbox" checked />
+              </label>
+              <label class="checkbox-field">
+                <span>주가 포인트 생성</span>
+                <input id="generatePriceText" type="checkbox" checked />
+              </label>
+              <label class="checkbox-field">
+                <span>리스크 생성</span>
+                <input id="generateRiskText" type="checkbox" checked />
+              </label>
+            </div>
+          </section>
+
+          <section class="page-section control-section">
+            <h3>프롬프트</h3>
+            <div class="form-grid ppt-form-grid">
+              <label class="json-field prompt-field">
+                <span>투자포인트 시스템 프롬프트</span>
+                <textarea id="investmentSystemPrompt" spellcheck="false"></textarea>
+              </label>
+              <label class="json-field prompt-field">
+                <span>투자포인트 추가 지침</span>
+                <textarea id="investmentCustomPrompt" spellcheck="false"></textarea>
+              </label>
+              <label class="json-field prompt-field">
+                <span>주가 포인트 시스템 프롬프트</span>
+                <textarea id="priceSystemPrompt" spellcheck="false"></textarea>
+              </label>
+              <label class="json-field prompt-field">
+                <span>주가 포인트 추가 지침</span>
+                <textarea id="priceCustomPrompt" spellcheck="false"></textarea>
+              </label>
+              <label class="json-field prompt-field">
+                <span>리스크 시스템 프롬프트</span>
+                <textarea id="riskSystemPrompt" spellcheck="false"></textarea>
+              </label>
+              <label class="json-field prompt-field">
+                <span>리스크 추가 지침</span>
+                <textarea id="riskCustomPrompt" spellcheck="false"></textarea>
+              </label>
+            </div>
+          </section>
+        </div>
+      </section>
     </div>
 
     <script src="./app.js"></script>
