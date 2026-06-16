@@ -84,7 +84,7 @@ jobs:
         run: npm run test:node
 
       - name: Build release artifacts
-        run: npm run ${{ matrix.build-script }}
+        run: npm run ${{ matrix.build-script }} -- --publish never
 
       - name: Upload release assets
         shell: bash
