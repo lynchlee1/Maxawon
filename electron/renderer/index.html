@@ -274,9 +274,12 @@
                                         <span>종료일</span>
                                         <input class="ui-input" id="weeklyMezzTo" type="date" />
                                     </label>
-                                    <label class="checkbox-field">
-                                        <span>최종보고서만</span>
-                                        <input class="ui-checkbox" id="weeklyMezzLastOnly" type="checkbox" />
+                                    <label>
+                                        <span>최종보고서만(Y/N)</span>
+                                        <select class="ui-input" id="weeklyMezzLastOnly">
+                                            <option value="Y" selected>Y</option>
+                                            <option value="N">N</option>
+                                        </select>
                                     </label>
                                     <label class="file-field wide">
                                         <span>저장 파일</span>
@@ -1131,5 +1134,6 @@
         </div>
 
         <script src="./app.js"></script>
+        <script src="./app-init.js"></script>
     </body>
 </html>

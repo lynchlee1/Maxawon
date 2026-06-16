@@ -8,114 +8,139 @@ function escapeXml(value) {
     .replace(/>/g, "&gt;");
 }
 
-async function generatePpt(templatePath, outputPath, data) {
+function assertTemplateExists(templatePath) {
   if (!fs.existsSync(templatePath)) {
     throw new Error(`PPT 템플릿을 찾지 못했습니다: ${templatePath}`);
   }
+}
 
+function isEditablePresentationXml(key) {
+  return (key.startsWith("ppt/slides/slide") || key.startsWith("ppt/notesSlides/notesSlide")) && key.endsWith(".xml");
+}
+
+function replaceScalarPlaceholders(xml, data) {
+  let nextXml = xml;
+  for (const [placeholderKey, value] of Object.entries(data)) {
+    if (placeholderKey === "ownershipTableData") continue;
+    if (placeholderKey === "call_percent") {
+      nextXml = nextXml.replace(/X%/g, `${value}%`);
+      continue;
+    }
+    if (placeholderKey === "refixing_percent") {
+      nextXml = nextXml.replace(/Y%/g, `${value}%`);
+      continue;
+    }
+    nextXml = nextXml.split(`{{${placeholderKey}}}`).join(String(value));
+  }
+  return nextXml;
+}
+
+function rightAlignCellXml(cellXml) {
+  if (cellXml.includes("<a:pPr ")) {
+    return cellXml.replace(/<a:pPr /g, '<a:pPr algn="r" marR="10800" ');
+  }
+  if (cellXml.includes("<a:pPr/>")) {
+    return cellXml.replace(/<a:pPr\/>/g, '<a:pPr algn="r" marR="10800"/>');
+  }
+  return cellXml
+    .replace(/<a:p>/g, '<a:p><a:pPr algn="r" marR="10800"/>')
+    .replace(/<a:p [^>]*>/g, (match) => `${match}<a:pPr algn="r" marR="10800"/>`);
+}
+
+function removeExtraTextRuns(cellXml) {
+  const extraAtRegex = new RegExp("</a:t>.*?<a:t>.*?</a:t>", "s");
+  let nextCellXml = cellXml;
+  while (extraAtRegex.test(nextCellXml)) {
+    nextCellXml = nextCellXml.replace(extraAtRegex, "</a:t>");
+  }
+  return nextCellXml;
+}
+
+function fillOwnershipCell(cellXml, cellData, cellIndex) {
+  if (!cellData) {
+    return cellXml.replace(new RegExp("<a:t>.*?</a:t>", "gs"), "");
+  }
+
+  const text = escapeXml(cellData);
+  if (cellXml.includes("<a:t>")) {
+    const replacedXml = cellXml.replace(new RegExp("<a:t>.*?</a:t>"), `<a:t>${text}</a:t>`);
+    return cellIndex > 0 ? rightAlignCellXml(removeExtraTextRuns(replacedXml)) : removeExtraTextRuns(replacedXml);
+  }
+
+  const pPrTag = cellIndex > 0 ? '<a:pPr algn="r" marR="10800"/>' : "";
+  const textRun = `${pPrTag}<a:r><a:rPr sz="1000"><a:latin typeface="맑은 고딕"/><a:ea typeface="맑은 고딕"/></a:rPr><a:t>${text}</a:t></a:r>`;
+  if (cellXml.includes("<a:p>")) {
+    return cellXml.replace("<a:p>", `<a:p>${textRun}`);
+  }
+  if (cellXml.includes("<a:p ")) {
+    return cellXml.replace(new RegExp("<a:p [^>]*>"), (match) => `${match}${textRun}`);
+  }
+  return cellXml;
+}
+
+function fillOwnershipRow(rowXml, rowIndex, ownershipTableData) {
+  if (rowIndex < 2 || rowIndex >= 12) return rowXml;
+
+  const dataRow = rowIndex - 2;
+  let cellIndex = 0;
+  const tcRegex = new RegExp("<a:tc[^>]*>.*?</a:tc>", "gs");
+  return rowXml.replace(tcRegex, (cellXml) => {
+    if (cellIndex >= 11) return cellXml;
+    const cellData = ownershipTableData[dataRow]?.[cellIndex];
+    const nextCellXml = fillOwnershipCell(cellXml, cellData, cellIndex);
+    cellIndex += 1;
+    return nextCellXml;
+  });
+}
+
+function fillOwnershipTable(tblXml, ownershipTableData) {
+  if (!tblXml.includes("특관자1") && !tblXml.includes("주주명")) return tblXml;
+
+  let rowIndex = 0;
+  const trRegex = new RegExp("<a:tr[^>]*>.*?</a:tr>", "gs");
+  return tblXml.replace(trRegex, (rowXml) => {
+    const nextRowXml = fillOwnershipRow(rowXml, rowIndex, ownershipTableData);
+    rowIndex += 1;
+    return nextRowXml;
+  });
+}
+
+function replaceOwnershipTables(xml, ownershipTableData) {
+  if (!ownershipTableData) return xml;
+
+  let nextXml = xml;
+  let currentPos = nextXml.indexOf("<a:tbl>");
+  while (currentPos !== -1) {
+    const tblEnd = nextXml.indexOf("</a:tbl>", currentPos);
+    if (tblEnd === -1) break;
+
+    const tblXml = nextXml.substring(currentPos, tblEnd + 8);
+    const newTblXml = fillOwnershipTable(tblXml, ownershipTableData);
+    nextXml = nextXml.substring(0, currentPos) + newTblXml + nextXml.substring(tblEnd + 8);
+    currentPos = nextXml.indexOf("<a:tbl>", currentPos + newTblXml.length);
+  }
+  return nextXml;
+}
+
+function renderPresentationXml(xml, data) {
+  return replaceOwnershipTables(replaceScalarPlaceholders(xml, data), data.ownershipTableData);
+}
+
+async function generatePpt(templatePath, outputPath, data) {
+  assertTemplateExists(templatePath);
   const content = fs.readFileSync(templatePath, "binary");
   const zip = new PizZip(content);
 
   for (const key of Object.keys(zip.files)) {
-    if (!(key.startsWith("ppt/slides/slide") || key.startsWith("ppt/notesSlides/notesSlide")) || !key.endsWith(".xml")) {
-      continue;
+    if (isEditablePresentationXml(key)) {
+      zip.file(key, renderPresentationXml(zip.files[key].asText(), data));
     }
-
-    let xml = zip.files[key].asText();
-
-    for (const [placeholderKey, value] of Object.entries(data)) {
-      if (placeholderKey === "ownershipTableData") continue;
-      if (placeholderKey === "call_percent") {
-        xml = xml.replace(/X%/g, `${value}%`);
-        continue;
-      }
-      if (placeholderKey === "refixing_percent") {
-        xml = xml.replace(/Y%/g, `${value}%`);
-        continue;
-      }
-      xml = xml.split(`{{${placeholderKey}}}`).join(String(value));
-    }
-
-    if (data.ownershipTableData) {
-      let currentPos = xml.indexOf("<a:tbl>");
-      while (currentPos !== -1) {
-        const tblEnd = xml.indexOf("</a:tbl>", currentPos);
-        if (tblEnd === -1) break;
-
-        const tblXml = xml.substring(currentPos, tblEnd + 8);
-        if (tblXml.includes("특관자1") || tblXml.includes("주주명")) {
-          let rowIndex = 0;
-          const trRegex = new RegExp("<a:tr[^>]*>.*?</a:tr>", "gs");
-          const newTblXml = tblXml.replace(trRegex, (rowXml) => {
-            if (rowIndex < 2 || rowIndex >= 12) {
-              rowIndex += 1;
-              return rowXml;
-            }
-
-            const dataRow = rowIndex - 2;
-            let cellIndex = 0;
-            const tcRegex = new RegExp("<a:tc[^>]*>.*?</a:tc>", "gs");
-            const newRowXml = rowXml.replace(tcRegex, (cellXml) => {
-              if (cellIndex >= 11) return cellXml;
-
-              const cellData = data.ownershipTableData[dataRow]?.[cellIndex];
-              let newCellXml = cellXml;
-              if (cellData) {
-                const text = escapeXml(cellData);
-                if (newCellXml.includes("<a:t>")) {
-                  newCellXml = newCellXml.replace(new RegExp("<a:t>.*?</a:t>"), `<a:t>${text}</a:t>`);
-                  const extraAtRegex = new RegExp("</a:t>.*?<a:t>.*?</a:t>", "s");
-                  while (extraAtRegex.test(newCellXml)) {
-                    newCellXml = newCellXml.replace(extraAtRegex, "</a:t>");
-                  }
-                  if (cellIndex > 0) {
-                    if (newCellXml.includes("<a:pPr ")) {
-                      newCellXml = newCellXml.replace(/<a:pPr /g, '<a:pPr algn="r" marR="10800" ');
-                    } else if (newCellXml.includes("<a:pPr/>")) {
-                      newCellXml = newCellXml.replace(/<a:pPr\/>/g, '<a:pPr algn="r" marR="10800"/>');
-                    } else {
-                      newCellXml = newCellXml.replace(/<a:p>/g, '<a:p><a:pPr algn="r" marR="10800"/>');
-                      newCellXml = newCellXml.replace(/<a:p [^>]*>/g, (match) => `${match}<a:pPr algn="r" marR="10800"/>`);
-                    }
-                  }
-                } else if (newCellXml.includes("<a:p>")) {
-                  const pPrTag = cellIndex > 0 ? '<a:pPr algn="r" marR="10800"/>' : "";
-                  newCellXml = newCellXml.replace(
-                    "<a:p>",
-                    `<a:p>${pPrTag}<a:r><a:rPr sz="1000"><a:latin typeface="맑은 고딕"/><a:ea typeface="맑은 고딕"/></a:rPr><a:t>${text}</a:t></a:r>`,
-                  );
-                } else if (newCellXml.includes("<a:p ")) {
-                  const pPrTag = cellIndex > 0 ? '<a:pPr algn="r" marR="10800"/>' : "";
-                  newCellXml = newCellXml.replace(
-                    new RegExp("<a:p [^>]*>"),
-                    (match) => `${match}${pPrTag}<a:r><a:rPr sz="1000"><a:latin typeface="맑은 고딕"/><a:ea typeface="맑은 고딕"/></a:rPr><a:t>${text}</a:t></a:r>`,
-                  );
-                }
-              } else {
-                newCellXml = newCellXml.replace(new RegExp("<a:t>.*?</a:t>", "gs"), "");
-              }
-
-              cellIndex += 1;
-              return newCellXml;
-            });
-
-            rowIndex += 1;
-            return newRowXml;
-          });
-          xml = xml.substring(0, currentPos) + newTblXml + xml.substring(tblEnd + 8);
-          currentPos += newTblXml.length;
-        } else {
-          currentPos = tblEnd + 8;
-        }
-        currentPos = xml.indexOf("<a:tbl>", currentPos);
-      }
-    }
-
-    zip.file(key, xml);
   }
-
   fs.writeFileSync(outputPath, zip.generate({ type: "nodebuffer", compression: "DEFLATE" }));
   return outputPath;
 }
 
-module.exports = { generatePpt };
+module.exports = {
+  generatePpt,
+  renderPresentationXml,
+};

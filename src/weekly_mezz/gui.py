@@ -48,8 +48,7 @@ class MezzanineCollectorApp:
         self.start_date_var = tk.StringVar(value=get_config_value("start_date", format_yyyymmdd(default_start)))
         self.end_date_var = tk.StringVar(value=get_config_value("end_date", format_yyyymmdd(default_end)))
         self.output_path_var = tk.StringVar(value=get_config_value("output_path", str(default_output_path())))
-        self.last_reprt_at_var = tk.StringVar(value=get_config_value("last_reprt_at", "N"))
-        self.final_reports_var = tk.BooleanVar(value=self.last_reprt_at_var.get() == "Y")
+        self.last_reprt_at_var = tk.StringVar(value=get_config_value("last_reprt_at", "Y"))
 
     def _build_layout(self):
         self.root.configure(bg=self.BG)
@@ -85,19 +84,20 @@ class MezzanineCollectorApp:
 
         final_box = ttk.Frame(settings)
         final_box.grid(row=1, column=3, sticky="nw", padx=(18, 0), pady=(14, 0))
-        ttk.Label(final_box, text="최종보고서만 보기", font=("Malgun Gothic", 11, "bold"), foreground=self.MUTED).grid(
+        ttk.Label(final_box, text="최종보고서만(Y/N)", font=("Malgun Gothic", 11, "bold"), foreground=self.MUTED).grid(
             row=0,
             column=0,
             sticky="w",
             pady=(0, 8),
         )
-        ttk.Checkbutton(
+        ttk.Combobox(
             final_box,
-            text="사용",
-            variable=self.final_reports_var,
-            command=self._set_last_report_value,
-            bootstyle="round-toggle",
-        ).grid(row=1, column=0, sticky="w")
+            textvariable=self.last_reprt_at_var,
+            values=("Y", "N"),
+            state="readonly",
+            width=6,
+            font=("Arial", 11),
+        ).grid(row=1, column=0, sticky="w", ipady=5)
 
         button_row = ttk.Frame(settings)
         button_row.grid(row=2, column=0, columnspan=4, sticky="ew", pady=(24, 0))
@@ -166,16 +166,23 @@ class MezzanineCollectorApp:
                 ipady=5,
             )
 
-    def _set_last_report_value(self):
-        self.last_reprt_at_var.set("Y" if self.final_reports_var.get() else "N")
+    def _normalize_last_report_value(self):
+        value = self.last_reprt_at_var.get().strip().upper() or "Y"
+        if value not in {"Y", "N"}:
+            messagebox.showerror("Weekly Mezzanine", "최종보고서만 값은 Y 또는 N이어야 합니다.")
+            return False
+        self.last_reprt_at_var.set(value)
+        return True
 
     def save_settings(self):
-        self._set_last_report_value()
+        if not self._normalize_last_report_value():
+            return False
         set_config_value("start_date", self.start_date_var.get())
         set_config_value("end_date", self.end_date_var.get())
         set_config_value("output_path", self.output_path_var.get())
         set_config_value("last_reprt_at", self.last_reprt_at_var.get())
         self._append_log("Settings saved.")
+        return True
 
     def choose_output(self):
         path = filedialog.asksaveasfilename(
@@ -198,7 +205,8 @@ class MezzanineCollectorApp:
             messagebox.showerror("Weekly Mezzanine", "Dates must use YYYYMMDD format.")
             return
 
-        self.save_settings()
+        if not self.save_settings():
+            return
         self.stop_requested = False
         self.worker = threading.Thread(
             target=self._run_worker,

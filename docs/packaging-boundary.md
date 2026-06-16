@@ -7,9 +7,18 @@ at runtime.
 
 - `electron/**/*`: Electron main, preload, renderer HTML, CSS, and JavaScript.
 - `package.json`: Electron app metadata used by the packaged app.
-- `src/maxawon/**/*.py`: Python runtime modules, copied to
-  `resources/src/maxawon` through `extraResources` so Python can
-  import them as normal files.
+- Python runtime modules under `src/**`, copied through `extraResources` so
+  Python can import them as normal files.
+
+## Runtime prerequisite
+
+The app uses the user's installed Python 3 and checks required Python packages
+before starting Cretop capture or Weekly Mezz collection. If a package is
+missing, the app reports the missing module and asks the user to run:
+
+```bash
+python3 -m pip install -e .
+```
 
 ## Not included in the Electron build
 

@@ -11,6 +11,7 @@
   "scripts": {
     "desktop": "electron .",
     "desktop:dev": "electron . --dev",
+    "test:node": "node --test tests/*.test.js",
     "dist": "electron-builder --win",
     "dist:dir": "electron-builder --dir"
   },

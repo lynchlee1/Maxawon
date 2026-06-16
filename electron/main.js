@@ -4,6 +4,12 @@ const { spawn, spawnSync } = require("child_process");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const {
+  assertPythonRuntime,
+  buildPythonEnv,
+  checkPythonRuntime,
+  formatPythonRuntimeError,
+} = require("./runtime-check");
 
 const projectRoot = path.resolve(__dirname, "..");
 const runtimeRoot = app.getPath("userData");
@@ -185,16 +191,30 @@ function pythonCommand() {
   return process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 }
 
+function pythonEnv() {
+  return buildPythonEnv(process.env, srcRoot);
+}
+
+function getPythonRuntimeStatus() {
+  return checkPythonRuntime({
+    command: pythonCommand(),
+    cwd: pythonRoot,
+    env: pythonEnv(),
+  });
+}
+
 function runPython(code, args = []) {
   return new Promise((resolve, reject) => {
+    try {
+      assertPythonRuntime(getPythonRuntimeStatus());
+    } catch (error) {
+      reject(error);
+      return;
+    }
+
     const child = spawn(pythonCommand(), ["-c", code, ...args], {
       cwd: pythonRoot,
-      env: {
-        ...process.env,
-        PYTHONPATH: process.env.PYTHONPATH ? `${srcRoot}${path.delimiter}${process.env.PYTHONPATH}` : srcRoot,
-        PYTHONUTF8: "1",
-        PYTHONWARNINGS: "ignore",
-      },
+      env: pythonEnv(),
     });
 
     let stdout = "";
@@ -218,15 +238,6 @@ function runPython(code, args = []) {
       }
     });
   });
-}
-
-function pythonEnv() {
-  return {
-    ...process.env,
-    PYTHONPATH: process.env.PYTHONPATH ? `${srcRoot}${path.delimiter}${process.env.PYTHONPATH}` : srcRoot,
-    PYTHONUTF8: "1",
-    PYTHONWARNINGS: "ignore",
-  };
 }
 
 function purgeOldNetworkLogs() {
@@ -257,6 +268,17 @@ function purgeOldNetworkLogs() {
 
 function startNetworkLogger() {
   if (networkLoggerProcess && !networkLoggerProcess.killed) return;
+
+  const runtimeStatus = getPythonRuntimeStatus();
+  if (!runtimeStatus.ok) {
+    fs.mkdirSync(networkLogDir, { recursive: true });
+    fs.appendFileSync(
+      path.join(networkLogDir, "network-logger.stderr.log"),
+      `${new Date().toISOString()} ${formatPythonRuntimeError(runtimeStatus)}\n`,
+      "utf8",
+    );
+    return;
+  }
 
   fs.mkdirSync(networkLogDir, { recursive: true });
   const stdout = fs.openSync(path.join(networkLogDir, "network-logger.stdout.log"), "a");
@@ -425,6 +447,7 @@ ipcMain.handle("app:get-defaults", () => ({
   updatesSupported: app.isPackaged,
   pptForgerSettingsPath,
   defaultPptTemplateDir,
+  pythonRuntime: getPythonRuntimeStatus(),
 }));
 
 ipcMain.handle("app:check-for-updates", async () => {
@@ -720,7 +743,7 @@ from weekly_mezz.cli import collect_and_export, parse_yyyymmdd
 start_date = parse_yyyymmdd(sys.argv[1])
 end_date = parse_yyyymmdd(sys.argv[2])
 output_path = Path(sys.argv[3]).expanduser()
-last_reprt_at = sys.argv[4] or "N"
+last_reprt_at = sys.argv[4] or "Y"
 
 result = collect_and_export(
     start_date,
@@ -739,7 +762,7 @@ print(json.dumps({
       payload.fromDate,
       payload.toDate,
       payload.outputPath,
-      payload.lastReportOnly ? "Y" : "N",
+      payload.lastReportValue || "Y",
     ],
   ),
 );

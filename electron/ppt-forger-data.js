@@ -180,33 +180,40 @@ async function readExcelData(filePath) {
   };
 }
 
-async function fetchCompanyInfo(stockCode) {
+function cleanStockCode(stockCode) {
   const cleanCode = String(stockCode || "").trim();
   if (!/^\d{6}$/.test(cleanCode)) {
     throw new Error("종목코드는 6자리 숫자로 입력하세요.");
   }
+  return cleanCode;
+}
 
+function normalizeMarket(value) {
+  const text = String(value || "").trim();
+  if (text === "KSE" || text.includes("유가증권") || text.includes("코스피")) return "KOSPI";
+  if (text.includes("코스닥")) return "KOSDAQ";
+  if (text.includes("코넥스")) return "KONEX";
+  return text;
+}
+
+async function fetchFnGuideHtml(cleanCode) {
   const fnguideUrl = `https://comp.fnguide.com/SVO2/ASP/SVD_main.asp?pGB=1&gicode=A${cleanCode}&cID=&MenuYn=Y&ReportGB=&NewMenuID=11&stkGb=&strResearchYN=`;
   const fnResponse = await fetch(fnguideUrl);
-  const fnHtml = await fnResponse.text();
+  return fnResponse.text();
+}
 
+function parseFnGuideProfile(fnHtml) {
   const nameMatch = fnHtml.match(/<h1[^>]*id="giName"[^>]*>([^<]+)<\/h1>/i) || fnHtml.match(/<title>([^|]+)\|/i);
-  let companyName = nameMatch ? nameMatch[1].trim() : "";
-
   const marketMatch = fnHtml.match(/<input[^>]*id="strMarket"[^>]*value="([^"]+)"/i);
   const marketTxtMatch = fnHtml.match(/<span[^>]*id="strMarketTxt"[^>]*>([^<]+)<\/span>/i);
-  let stockMarket = marketMatch ? marketMatch[1].trim() : "";
-  if (stockMarket === "KSE") stockMarket = "KOSPI";
 
-  let stockMarketKor = "";
-  if (marketTxtMatch) {
-    const text = marketTxtMatch[1].trim();
-    if (text.includes("코스피")) stockMarketKor = "KOSPI";
-    else if (text.includes("코스닥")) stockMarketKor = "KOSDAQ";
-    else if (text.includes("코넥스")) stockMarketKor = "KONEX";
-  }
-  if (!stockMarketKor) stockMarketKor = stockMarket;
+  return {
+    companyName: nameMatch ? nameMatch[1].trim() : "",
+    stockMarket: normalizeMarket(marketTxtMatch ? marketTxtMatch[1].trim() : marketMatch?.[1]?.trim()),
+  };
+}
 
+function buildKindSearchBody(cleanCode) {
   const searchBody = new URLSearchParams();
   searchBody.append("method", "searchCorpNameJson");
   searchBody.append("isurCd", "");
@@ -220,26 +227,28 @@ async function fetchCompanyInfo(stockCode) {
   searchBody.append("spotIsuTrdMktTpCd", "");
   searchBody.append("comAttrTpCd", "");
   searchBody.append("comAbbrv", "");
+  return searchBody;
+}
 
+async function fetchKindCorpInfo(cleanCode) {
   const kindSearchResponse = await fetch("https://kind.krx.co.kr/common/searchcorpname.do", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: searchBody.toString(),
+    body: buildKindSearchBody(cleanCode).toString(),
   });
   const kindSearchResults = await kindSearchResponse.json();
   if (!kindSearchResults || kindSearchResults.length === 0) {
     throw new Error(`KIND에서 종목코드 ${cleanCode} 회사를 찾지 못했습니다.`);
   }
+  return kindSearchResults[0];
+}
 
-  const corpInfo = kindSearchResults[0];
-  const { isurcd, kiscomcd, repisucd, repisusrtkornm } = corpInfo;
-  companyName = repisusrtkornm || companyName;
-
+function buildKindInfoBody(corpInfo, companyName) {
   const infoBody = new URLSearchParams();
   infoBody.append("method", "searchTotalInfo");
-  infoBody.append("isurCd", isurcd);
-  infoBody.append("kisComCd", kiscomcd);
-  infoBody.append("repIsuCd", repisucd);
+  infoBody.append("isurCd", corpInfo.isurcd);
+  infoBody.append("kisComCd", corpInfo.kiscomcd);
+  infoBody.append("repIsuCd", corpInfo.repisucd);
   infoBody.append("mode", "");
   infoBody.append("tabMenu", "0");
   infoBody.append("companyNM", encodeURIComponent(companyName));
@@ -248,14 +257,19 @@ async function fetchCompanyInfo(stockCode) {
   infoBody.append("spotIsuTrdMktTpCd", corpInfo.spotisutrdmkttpcd || "1");
   infoBody.append("comAttrTpCd", corpInfo.comAttrTpCd || "1");
   infoBody.append("comAbbrv", companyName);
+  return infoBody;
+}
 
+async function fetchKindInfoHtml(corpInfo, companyName) {
   const kindInfoResponse = await fetch("https://kind.krx.co.kr/corpdetail/totalinfo.do", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: infoBody.toString(),
+    body: buildKindInfoBody(corpInfo, companyName).toString(),
   });
-  const kindInfoHtml = await kindInfoResponse.text();
+  return kindInfoResponse.text();
+}
 
+function parseKindCompanyData(kindInfoHtml) {
   const extractField = (label) => {
     const regex = new RegExp(`<th[^>]*>[^<]*${label}[^<]*<\\/th>\\s*<td[^>]*>([^<]*)<\\/td>`, "i");
     const match = kindInfoHtml.match(regex);
@@ -276,83 +290,115 @@ async function fetchCompanyInfo(stockCode) {
     address: extractField("주소"),
     homepage: extractField("홈페이지"),
   };
+}
 
+function buildKindSummaryBody(corpInfo) {
   const summaryBody = new URLSearchParams();
   summaryBody.append("method", "searchCompanySummaryOvrvwDetail");
-  summaryBody.append("strIsurCd", isurcd.substring(0, 5));
+  summaryBody.append("strIsurCd", corpInfo.isurcd.substring(0, 5));
   summaryBody.append("lstCd", "undefined");
+  return summaryBody;
+}
 
+async function fetchKindSummaryHtml(corpInfo) {
   const kindSummaryResponse = await fetch("https://kind.krx.co.kr/common/companysummary.do", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: summaryBody.toString(),
+    body: buildKindSummaryBody(corpInfo).toString(),
   });
-  const kindSummaryHtml = await kindSummaryResponse.text();
+  return kindSummaryResponse.text();
+}
 
+function parseKindSummary(kindSummaryHtml, fallbackCompanyName, fallbackMarket) {
   const corpNameMatch = kindSummaryHtml.match(/<th scope="row">한글명<\/th>\s*<td>\s*(?:<img[^>]*>\s*&nbsp;)?\s*([^<\s\n\r\t]+)\s*<\/td>/i);
-  const corpName = corpNameMatch ? corpNameMatch[1].trim() : companyName;
+  const corpName = corpNameMatch ? corpNameMatch[1].trim() : fallbackCompanyName;
 
   const marketTypeMatch = kindSummaryHtml.match(/<th scope="row">시장구분<\/th>\s*<td>\s*<strong[^>]*>([^<]+)<\/strong>/i);
-  let stockMarketResult = marketTypeMatch ? marketTypeMatch[1].trim() : stockMarketKor;
-  if (stockMarketResult.includes("유가증권")) stockMarketResult = "KOSPI";
-  else if (stockMarketResult.includes("코스닥")) stockMarketResult = "KOSDAQ";
-  else if (stockMarketResult.includes("코넥스")) stockMarketResult = "KONEX";
-
   const corpNameFullMatch = kindSummaryHtml.match(/<h2[^>]*>상호변경내역<\/h2>.*?<tbody>\s*<tr>\s*<td[^>]*>.*?<\/td>\s*<td[^>]*>.*?<\/td>\s*<td[^>]*>(.*?)<\/td>/is);
-  const corpNameFull = corpNameFullMatch ? corpNameFullMatch[1].trim() : `${corpName}(주)`;
 
+  return {
+    corpName,
+    corpNameFull: corpNameFullMatch ? corpNameFullMatch[1].trim() : `${corpName}(주)`,
+    stockMarket: normalizeMarket(marketTypeMatch ? marketTypeMatch[1].trim() : fallbackMarket),
+  };
+}
+
+function parseTotalIssuedShares(fnHtml) {
+  const sharesMatch = fnHtml.match(/발행주식수(?:<span[^>]*>[^<]*<\/span>)?<\/div>\s*<\/th>\s*<td[^>]*>([^<]+)<\/td>/i);
+  return sharesMatch ? parseInt(sharesMatch[1].split("/")[0].replace(/,/g, "").trim(), 10) || 0 : 0;
+}
+
+function parseFnGuideShareClassification(fnHtml) {
+  const shareholderClassification = [];
+  const classificationTableMatch = fnHtml.match(/<div[^>]*id="svdMainGrid5".*?<tbody>(.*?)<\/tbody>/is);
+  if (!classificationTableMatch) return shareholderClassification;
+
+  const rowRegex = /<tr><th[^>]*><div>(.*?)<\/div><\/th><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><\/tr>/gis;
+  const targetCategories = ["최대주주등", "자기주식", "우리사주조합"];
+  let match;
+  while ((match = rowRegex.exec(classificationTableMatch[1])) !== null) {
+    const category = match[1].replace(/&nbsp;/g, " ").trim();
+    const foundTarget = targetCategories.find((target) => category.startsWith(target));
+    if (foundTarget) {
+      shareholderClassification.push({
+        category: foundTarget,
+        shares: match[3].replace(/&nbsp;/g, "").trim() || "0",
+      });
+    }
+  }
+  return shareholderClassification;
+}
+
+async function fetchFnGuideShareholders(cleanCode) {
+  const shareholdersResponse = await fetch(`https://comp.fnguide.com/SVO2/json/data/01_09_01/A${cleanCode}.json`);
+  const shareholdersData = await shareholdersResponse.json();
+  if (!shareholdersData || !shareholdersData.comp) return [];
+
+  return shareholdersData.comp
+    .filter((shareholder) => shareholder.SHER_GB_1 === "10")
+    .map((shareholder) => ({
+      name: shareholder.SHER_NM,
+      relation: shareholder.MAJ_REL_NM,
+      shares: shareholder.COMM_STK_QTY,
+      ratio: shareholder.SHER_RT,
+      callEnabled: true,
+    }));
+}
+
+async function fetchFnGuideShareData(cleanCode, fnHtml) {
   let totalIssuedShares = 0;
   let shareholders = [];
   const shareholderClassification = [];
 
   try {
-    const sharesMatch = fnHtml.match(/발행주식수(?:<span[^>]*>[^<]*<\/span>)?<\/div>\s*<\/th>\s*<td[^>]*>([^<]+)<\/td>/i);
-    if (sharesMatch) {
-      totalIssuedShares = parseInt(sharesMatch[1].split("/")[0].replace(/,/g, "").trim(), 10) || 0;
-    }
-
-    const classificationTableMatch = fnHtml.match(/<div[^>]*id="svdMainGrid5".*?<tbody>(.*?)<\/tbody>/is);
-    if (classificationTableMatch) {
-      const rowRegex = /<tr><th[^>]*><div>(.*?)<\/div><\/th><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><td[^>]*>(.*?)<\/td><\/tr>/gis;
-      const targetCategories = ["최대주주등", "자기주식", "우리사주조합"];
-      let match;
-      while ((match = rowRegex.exec(classificationTableMatch[1])) !== null) {
-        const category = match[1].replace(/&nbsp;/g, " ").trim();
-        const foundTarget = targetCategories.find((target) => category.startsWith(target));
-        if (foundTarget) {
-          shareholderClassification.push({
-            category: foundTarget,
-            shares: match[3].replace(/&nbsp;/g, "").trim() || "0",
-          });
-        }
-      }
-    }
-
-    const shareholdersResponse = await fetch(`https://comp.fnguide.com/SVO2/json/data/01_09_01/A${cleanCode}.json`);
-    const shareholdersData = await shareholdersResponse.json();
-    if (shareholdersData && shareholdersData.comp) {
-      shareholders = shareholdersData.comp
-        .filter((shareholder) => shareholder.SHER_GB_1 === "10")
-        .map((shareholder) => ({
-          name: shareholder.SHER_NM,
-          relation: shareholder.MAJ_REL_NM,
-          shares: shareholder.COMM_STK_QTY,
-          ratio: shareholder.SHER_RT,
-          callEnabled: true,
-        }));
-    }
+    totalIssuedShares = parseTotalIssuedShares(fnHtml);
+    shareholderClassification.push(...parseFnGuideShareClassification(fnHtml));
+    shareholders = await fetchFnGuideShareholders(cleanCode);
   } catch (_error) {
     // FnGuide supplementary tables may be absent for some companies.
   }
+  return { totalIssuedShares, shareholders, shareholderClassification };
+}
+
+async function fetchCompanyInfo(stockCode) {
+  const cleanCode = cleanStockCode(stockCode);
+  const fnHtml = await fetchFnGuideHtml(cleanCode);
+  const fnGuideProfile = parseFnGuideProfile(fnHtml);
+  const corpInfo = await fetchKindCorpInfo(cleanCode);
+  const companyName = corpInfo.repisusrtkornm || fnGuideProfile.companyName;
+  const [kindInfoHtml, kindSummaryHtml, shareData] = await Promise.all([
+    fetchKindInfoHtml(corpInfo, companyName),
+    fetchKindSummaryHtml(corpInfo),
+    fetchFnGuideShareData(cleanCode, fnHtml),
+  ]);
+  const summary = parseKindSummary(kindSummaryHtml, companyName, fnGuideProfile.stockMarket);
 
   return {
-    corp_name: corpName,
-    corp_name_full: corpNameFull,
-    stock_market: stockMarketResult,
-    companyData,
-    totalIssuedShares,
-    shareholders,
-    shareholderClassification,
+    corp_name: summary.corpName,
+    corp_name_full: summary.corpNameFull,
+    stock_market: summary.stockMarket,
+    companyData: parseKindCompanyData(kindInfoHtml),
+    ...shareData,
   };
 }
 

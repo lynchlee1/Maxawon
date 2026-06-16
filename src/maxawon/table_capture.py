@@ -108,7 +108,7 @@ async def capture_current_maxawon_table(
     except ImportError as exc:
         raise RuntimeError(
             "화면 테이블 복사 기능을 사용하려면 Playwright가 필요합니다. "
-            "`python -m pip install -e .`를 실행하세요."
+            "`python3 -m pip install -e .`를 실행하세요."
         ) from exc
 
     if max_pages is not None and max_pages < 1:

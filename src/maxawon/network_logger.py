@@ -111,7 +111,7 @@ class NetworkLogger:
         except ImportError as exc:
             raise RuntimeError(
                 "네트워크 로그 저장 기능을 사용하려면 Playwright가 필요합니다. "
-                "`python -m pip install -e .`를 실행하세요."
+                "`python3 -m pip install -e .`를 실행하세요."
             ) from exc
 
         self.prepare()

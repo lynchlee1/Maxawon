@@ -15,7 +15,7 @@
 처음 한 번만 설치합니다.
 
 ```bash
-python -m pip install -e .
+python3 -m pip install -e .
 npm install
 ```
 
@@ -72,11 +72,10 @@ npm run desktop:dev
 - `실행된 Chrome 종료`: 이 앱에서 연 Chrome만 종료합니다.
 - `전체 Chrome 종료`: 사용자가 따로 열어 둔 Chrome까지 모두 종료할 수 있습니다. 필요한 경우에만 사용하세요.
 
-## 아직 지원하지 않는 기능
+## 지원 범위
 
-- 엑셀 파일을 읽어 Maxawon 검색을 자동으로 반복 실행하는 기능
-- 여러 후보가 나왔을 때 회사를 자동으로 판별하는 기능
-- 로그인 자동화
+- 로그인 자동화는 지원하지 않습니다.
+- Maxawon/Cretop에서는 사용자가 직접 로그인하고 직접 검색 화면까지 이동한 뒤, 현재 화면의 검색결과 테이블을 CSV로 저장합니다.
 
 이 프로그램은 CAPTCHA, 봇 탐지, 접근 제한, 속도 제한 같은 보호 장치를 우회하지 않습니다.
 
@@ -85,7 +84,7 @@ npm run desktop:dev
 Electron UI가 기본 실행 방식입니다. 예전 Tkinter UI가 필요하면 아래 명령으로 실행할 수 있습니다.
 
 ```bash
-python -m maxawon
+python3 -m maxawon
 ```
 
 또는:

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import os
 import platform
 import shutil
@@ -10,7 +9,6 @@ import threading
 from pathlib import Path
 from tkinter import DISABLED, END, NORMAL, StringVar, Tk, filedialog, messagebox, ttk
 
-from maxawon.scrapling_adapter import check_scrapling
 from maxawon.table_capture import (
     CDP_URL,
     CaptureResult,
@@ -149,46 +147,6 @@ $matches | ForEach-Object {
     return 1 if result.returncode == 0 else 0
 
 
-def read_excel_preview(path: Path, limit: int = 20) -> tuple[list[str], list[list[str]]]:
-    suffix = path.suffix.lower()
-
-    if suffix == ".csv":
-        last_error: UnicodeDecodeError | None = None
-        for encoding in ("utf-8-sig", "cp949"):
-            try:
-                with path.open("r", encoding=encoding, newline="") as file:
-                    reader = csv.reader(file)
-                    rows = list(reader)
-                break
-            except UnicodeDecodeError as exc:
-                last_error = exc
-        else:
-            raise RuntimeError("CSV 파일 인코딩을 읽지 못했습니다.") from last_error
-    else:
-        try:
-            from openpyxl import load_workbook
-        except ImportError as exc:
-            raise RuntimeError(
-                "엑셀(.xlsx) 파일을 읽으려면 openpyxl이 필요합니다. "
-                "터미널에서 `python -m pip install -e .`를 실행하세요."
-            ) from exc
-
-        workbook = load_workbook(path, read_only=True, data_only=True)
-        sheet = workbook.active
-        rows = [
-            ["" if value is None else str(value) for value in row]
-            for row in sheet.iter_rows(max_row=limit + 1, values_only=True)
-        ]
-        workbook.close()
-
-    if not rows:
-        return [], []
-
-    headers = rows[0]
-    body = rows[1 : limit + 1]
-    return headers, body
-
-
 class MaxawonApp:
     def __init__(self, root: Tk) -> None:
         self.root = root
@@ -196,12 +154,9 @@ class MaxawonApp:
         self.root.geometry("1080x720")
         self.root.minsize(900, 620)
 
-        self.excel_path: Path | None = None
         self.capture_output_path = DEFAULT_CAPTURE_OUTPUT
         self.login_status = StringVar(value="로그인 전")
-        self.file_status = StringVar(value="엑셀 파일 미선택")
         self.progress_status = StringVar(value="대기 중")
-        self.scrapling_status = StringVar(value="확인 전")
         self.capture_status = StringVar(value="대기 중")
         self.capture_output_status = StringVar(value=str(self.capture_output_path))
         self.capture_max_pages = StringVar(value="30")
@@ -243,11 +198,9 @@ class MaxawonApp:
 
         session_tab = ttk.Frame(content, padding=0, style="App.TFrame")
         capture_tab = ttk.Frame(content, padding=0, style="App.TFrame")
-        excel_tab = ttk.Frame(content, padding=0, style="App.TFrame")
         for name, frame in (
             ("session", session_tab),
             ("capture", capture_tab),
-            ("excel", excel_tab),
         ):
             frame.grid(row=0, column=0, sticky="nsew")
             self.views[name] = frame
@@ -255,7 +208,6 @@ class MaxawonApp:
         self._build_sidebar(sidebar)
         self._build_session_tab(session_tab)
         self._build_capture_tab(capture_tab)
-        self._build_excel_tab(excel_tab)
         self._show_view("session")
 
         log_frame = ttk.Frame(self.root, padding=16, style="Card.TFrame")
@@ -270,9 +222,7 @@ class MaxawonApp:
         self.log.column("message", width=900, stretch=True)
         self.log.grid(row=1, column=0, sticky="ew")
 
-        self._set_excel_start_enabled()
         self.add_log("Chrome을 열고 직접 로그인한 뒤 '로그인 완료'를 누르세요.")
-        self.check_scrapling_status(show_popup=False)
 
     def _configure_style(self) -> None:
         style = ttk.Style(self.root)
@@ -326,7 +276,6 @@ class MaxawonApp:
         nav_items = [
             ("session", "Cretop 로그인 연결하기"),
             ("capture", "Cretop 검색결과 저장하기"),
-            ("excel", "엑셀 검색대상 확인하기"),
         ]
         for row, (name, label) in enumerate(nav_items, start=2):
             button = ttk.Button(
@@ -377,18 +326,13 @@ class MaxawonApp:
         ttk.Button(actions, text="전체 Chrome 종료", style="Danger.TButton", command=self.close_all_chrome).grid(
             row=2, column=3, padx=(0, 8), sticky="w"
         )
-        ttk.Button(actions, text="Scrapling 확인", style="Secondary.TButton", command=self.check_scrapling_status).grid(
-            row=2, column=4, padx=(0, 8), sticky="w"
-        )
-
         status = self._make_card(parent, "상태")
         status.grid(row=1, column=0, sticky="ew", pady=(16, 0))
         status.columnconfigure(1, weight=1)
 
         self._status_row(status, 1, "로그인 상태", self.login_status)
         self._status_row(status, 2, "진행 상태", self.progress_status)
-        self._status_row(status, 3, "Scrapling", self.scrapling_status)
-        self._status_row(status, 4, "브라우저 연결", CDP_URL)
+        self._status_row(status, 3, "브라우저 연결", CDP_URL)
 
     def _build_capture_tab(self, parent: ttk.Frame) -> None:
         parent.columnconfigure(0, weight=1)
@@ -441,42 +385,6 @@ class MaxawonApp:
         self.capture_preview.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
         self._attach_tree_scrollbars(preview_frame, self.capture_preview, row=1)
 
-    def _build_excel_tab(self, parent: ttk.Frame) -> None:
-        parent.columnconfigure(0, weight=1)
-        parent.rowconfigure(2, weight=1)
-
-        actions = self._make_card(
-            parent,
-            "엑셀 검색대상 확인하기",
-            "검색 대상 파일을 불러오고 앞부분을 확인합니다. 자동 검색 처리는 규칙 확정 후 진행됩니다.",
-        )
-        actions.grid(row=0, column=0, sticky="ew")
-        actions.columnconfigure(1, weight=1)
-
-        ttk.Button(actions, text="엑셀 선택", style="Accent.TButton", command=self.pick_excel).grid(
-            row=2, column=0, padx=(0, 8), sticky="w"
-        )
-        self.start_button = ttk.Button(actions, text="처리 시작", style="Secondary.TButton", command=self.start_processing)
-        self.start_button.grid(row=2, column=2, sticky="e")
-
-        status_grid = ttk.Frame(parent, style="App.TFrame")
-        status_grid.grid(row=1, column=0, sticky="ew", pady=(12, 8))
-        status_grid.columnconfigure(1, weight=1)
-
-        ttk.Label(status_grid, text="파일 상태", style="Muted.TLabel").grid(row=0, column=0, sticky="w", padx=(0, 10))
-        ttk.Label(status_grid, textvariable=self.file_status, style="Muted.TLabel").grid(row=0, column=1, sticky="w")
-        ttk.Label(status_grid, text="진행 상태", style="Muted.TLabel").grid(row=1, column=0, sticky="w", padx=(0, 10), pady=(4, 0))
-        ttk.Label(status_grid, textvariable=self.progress_status, style="Muted.TLabel").grid(row=1, column=1, sticky="w", pady=(4, 0))
-
-        preview_frame = self._make_card(parent, "엑셀 미리보기")
-        preview_frame.grid(row=2, column=0, sticky="nsew")
-        preview_frame.columnconfigure(0, weight=1)
-        preview_frame.rowconfigure(1, weight=1)
-
-        self.preview = ttk.Treeview(preview_frame, show="headings", height=12)
-        self.preview.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
-        self._attach_tree_scrollbars(preview_frame, self.preview, row=1)
-
     def _status_row(self, parent: ttk.Frame, row: int, label: str, value: StringVar | str) -> None:
         ttk.Label(parent, text=label, style="Field.TLabel").grid(row=row, column=0, sticky="w", padx=(0, 18), pady=(10, 0))
         ttk.Label(parent, textvariable=value if isinstance(value, StringVar) else None, text=None if isinstance(value, StringVar) else value, style="Value.TLabel").grid(
@@ -526,7 +434,6 @@ class MaxawonApp:
             if count
             else "종료할 앱 Chrome 프로세스를 찾지 못했습니다."
         )
-        self._set_excel_start_enabled()
 
     def close_all_chrome(self) -> None:
         if not messagebox.askyesno("전체 Chrome 종료", "사용자가 직접 연 Chrome까지 모두 종료합니다. 계속할까요?"):
@@ -546,54 +453,11 @@ class MaxawonApp:
             if count
             else "실행 중인 Chrome 프로세스를 찾지 못했습니다."
         )
-        self._set_excel_start_enabled()
 
     def mark_login_done(self) -> None:
         self.login_status.set("로그인 완료")
-        self.progress_status.set("엑셀 파일 선택 대기")
+        self.progress_status.set("조건검색 화면 이동 대기")
         self.add_log("사용자가 로그인 완료를 확인했습니다.")
-        self._set_excel_start_enabled()
-
-    def check_scrapling_status(self, show_popup: bool = True) -> None:
-        status = check_scrapling()
-        self.scrapling_status.set(status.message)
-        self.add_log(status.message)
-
-        if show_popup:
-            if status.installed:
-                messagebox.showinfo("Scrapling 확인", status.message)
-            else:
-                messagebox.showwarning("Scrapling 필요", status.message)
-
-    def pick_excel(self) -> None:
-        selected = filedialog.askopenfilename(
-            title="검색 대상 파일 선택",
-            filetypes=[
-                ("Excel or CSV", "*.xlsx *.xlsm *.csv"),
-                ("Excel", "*.xlsx *.xlsm"),
-                ("CSV", "*.csv"),
-                ("All files", "*.*"),
-            ],
-        )
-        if not selected:
-            return
-
-        path = Path(selected)
-        try:
-            headers, rows = read_excel_preview(path)
-        except Exception as exc:
-            messagebox.showerror("파일 읽기 실패", str(exc))
-            return
-
-        self.excel_path = path
-        self.file_status.set(str(path))
-        self.progress_status.set("엑셀 파일 로드됨")
-        self.render_preview(headers, rows)
-        self.add_log(f"검색 대상 파일을 불러왔습니다: {path.name}")
-        self._set_excel_start_enabled()
-
-    def render_preview(self, headers: list[str], rows: list[list[str]]) -> None:
-        self.render_table(self.preview, headers, rows)
 
     def render_table(self, tree: ttk.Treeview, headers: list[str], rows: list[list[str]]) -> None:
         tree.delete(*tree.get_children())
@@ -681,38 +545,11 @@ class MaxawonApp:
         self.add_log(f"조건검색 결과 복사 실패: {message}")
         messagebox.showerror("복사 실패", message)
 
-    def start_processing(self) -> None:
-        if self.login_status.get() != "로그인 완료":
-            messagebox.showwarning("로그인 필요", "먼저 Maxawon에 로그인한 뒤 '로그인 완료'를 누르세요.")
-            return
-        if self.excel_path is None:
-            messagebox.showwarning("파일 필요", "검색 대상 엑셀 파일을 선택하세요.")
-            return
-        scrapling = check_scrapling()
-        if not scrapling.installed:
-            self.scrapling_status.set(scrapling.message)
-            messagebox.showwarning("Scrapling 필요", scrapling.message)
-            return
-
-        self.progress_status.set("구현 대기")
-        self.add_log("Scrapling 기반 검색 처리는 아직 구현되지 않았습니다. 중복 후보 처리 규칙을 먼저 확정해야 합니다.")
-        messagebox.showinfo(
-            "아직 구현 전",
-            "Scrapling 기반 엑셀 검색 처리는 아직 보류 상태입니다.\n"
-            "기업명/법인번호 컬럼, 출력 항목, 중복 후보 선택 기준을 확정한 뒤 구현하세요.",
-        )
-
     def add_log(self, message: str) -> None:
         self.log.insert("", END, values=(message,))
         children = self.log.get_children()
         if children:
             self.log.see(children[-1])
-
-    def _set_excel_start_enabled(self) -> None:
-        if self.login_status.get() == "로그인 완료" and self.excel_path is not None:
-            self.start_button.configure(state=NORMAL)
-        else:
-            self.start_button.configure(state=DISABLED)
 
 
 def main() -> int:
