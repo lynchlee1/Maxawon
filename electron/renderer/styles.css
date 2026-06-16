@@ -127,18 +127,15 @@ button:disabled {
   border-radius: 10px;
   background: transparent;
   color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.35;
   text-align: left;
 }
 
-.nav-task {
+.nav-page {
   min-height: 42px;
   color: #cbd5e1;
-  font-size: 13px;
-}
-
-.nav-parent {
-  font-weight: 800;
 }
 
 .nav-button:hover,
@@ -461,9 +458,15 @@ textarea:focus {
 .workflow-overview-item small {
   display: block;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   white-space: nowrap;
+}
+
+.workflow-overview-item strong::-webkit-scrollbar,
+.workflow-overview-item small::-webkit-scrollbar {
+  display: none;
 }
 
 .workflow-overview-item strong {
