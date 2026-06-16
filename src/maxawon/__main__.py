@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from cretop_data_reader.app import main
+from maxawon.app import main
 
 
 if __name__ == "__main__":

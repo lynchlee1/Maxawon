@@ -10,20 +10,20 @@ import threading
 from pathlib import Path
 from tkinter import DISABLED, END, NORMAL, StringVar, Tk, filedialog, messagebox, ttk
 
-from cretop_data_reader.scrapling_adapter import check_scrapling
-from cretop_data_reader.table_capture import (
+from maxawon.scrapling_adapter import check_scrapling
+from maxawon.table_capture import (
     CDP_URL,
     CaptureResult,
     CapturedTable,
-    capture_current_cretop_table_sync,
+    capture_current_maxawon_table_sync,
     write_table_csv,
 )
 
 
-CRETOP_URL = "https://www.cretop.com/"
+MAXAWON_URL = "https://www.maxawon.com/"
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROFILE_DIR = PROJECT_ROOT / ".chrome-profile"
-DEFAULT_CAPTURE_OUTPUT = PROJECT_ROOT / "output" / "cretop_condition_search.csv"
+DEFAULT_CAPTURE_OUTPUT = PROJECT_ROOT / "output" / "maxawon_condition_search.csv"
 REMOTE_DEBUGGING_PORT = "9222"
 
 COLOR_BG = "#eef2f7"
@@ -189,10 +189,10 @@ def read_excel_preview(path: Path, limit: int = 20) -> tuple[list[str], list[lis
     return headers, body
 
 
-class CretopDataReaderApp:
+class MaxawonApp:
     def __init__(self, root: Tk) -> None:
         self.root = root
-        self.root.title("Cretop Data Reader")
+        self.root.title("Maxawon")
         self.root.geometry("1080x720")
         self.root.minsize(900, 620)
 
@@ -221,10 +221,10 @@ class CretopDataReaderApp:
         top.grid(row=0, column=0, sticky="ew")
         top.columnconfigure(1, weight=1)
 
-        ttk.Label(top, text="Cretop Data Reader", style="Title.TLabel").grid(
+        ttk.Label(top, text="Maxawon", style="Title.TLabel").grid(
             row=0, column=0, sticky="w"
         )
-        ttk.Label(top, text="수동 로그인 기반의 Cretop 업무 자동화 콘솔", style="Muted.TLabel").grid(
+        ttk.Label(top, text="수동 로그인 기반의 Maxawon 업무 자동화 콘솔", style="Muted.TLabel").grid(
             row=1, column=0, sticky="w", pady=(6, 0)
         )
 
@@ -321,7 +321,7 @@ class CretopDataReaderApp:
         parent.columnconfigure(0, weight=1)
 
         ttk.Label(parent, text="WORKSPACE", style="SidebarMuted.TLabel").grid(row=0, column=0, sticky="w")
-        ttk.Label(parent, text="Cretop", style="SidebarTitle.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 18))
+        ttk.Label(parent, text="Maxawon", style="SidebarTitle.TLabel").grid(row=1, column=0, sticky="w", pady=(4, 18))
 
         nav_items = [
             ("session", "세션 연결"),
@@ -397,7 +397,7 @@ class CretopDataReaderApp:
         controls = self._make_card(
             parent,
             "현재 조건검색 결과",
-            "Cretop에서 사용자가 직접 띄운 조건검색 결과 테이블을 CSV로 저장합니다.",
+            "Maxawon에서 사용자가 직접 띄운 조건검색 결과 테이블을 CSV로 저장합니다.",
         )
         controls.grid(row=0, column=0, sticky="ew")
         controls.columnconfigure(1, weight=1)
@@ -503,13 +503,13 @@ class CretopDataReaderApp:
                 f"--user-data-dir={PROFILE_DIR}",
                 f"--remote-debugging-port={REMOTE_DEBUGGING_PORT}",
                 "--new-window",
-                CRETOP_URL,
+                MAXAWON_URL,
             ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
         self.progress_status.set("Chrome 실행됨")
-        self.add_log("Chrome을 열었습니다. Cretop에서 직접 로그인한 뒤 조건검색을 실행하세요.")
+        self.add_log("Chrome을 열었습니다. Maxawon에서 직접 로그인한 뒤 조건검색을 실행하세요.")
 
     def close_app_chrome(self) -> None:
         try:
@@ -627,7 +627,7 @@ class CretopDataReaderApp:
 
     def start_table_capture(self) -> None:
         if self.login_status.get() != "로그인 완료":
-            messagebox.showwarning("로그인 필요", "Cretop에 로그인한 뒤 '로그인 완료'를 누르세요.")
+            messagebox.showwarning("로그인 필요", "Maxawon에 로그인한 뒤 '로그인 완료'를 누르세요.")
             return
 
         try:
@@ -641,7 +641,7 @@ class CretopDataReaderApp:
 
         self.capture_button.configure(state=DISABLED)
         self.capture_status.set("복사 중")
-        self.add_log("현재 Cretop 화면의 조건검색 결과 테이블 복사를 시작합니다.")
+        self.add_log("현재 Maxawon 화면의 조건검색 결과 테이블 복사를 시작합니다.")
         output_path = self.capture_output_path
 
         thread = threading.Thread(
@@ -653,7 +653,7 @@ class CretopDataReaderApp:
 
     def _run_table_capture(self, max_pages: int, output_path: Path) -> None:
         try:
-            result = capture_current_cretop_table_sync(max_pages=max_pages)
+            result = capture_current_maxawon_table_sync(max_pages=max_pages)
             if not result.rows:
                 raise RuntimeError("현재 화면에서 복사할 테이블 데이터를 찾지 못했습니다.")
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -683,7 +683,7 @@ class CretopDataReaderApp:
 
     def start_processing(self) -> None:
         if self.login_status.get() != "로그인 완료":
-            messagebox.showwarning("로그인 필요", "먼저 Cretop에 로그인한 뒤 '로그인 완료'를 누르세요.")
+            messagebox.showwarning("로그인 필요", "먼저 Maxawon에 로그인한 뒤 '로그인 완료'를 누르세요.")
             return
         if self.excel_path is None:
             messagebox.showwarning("파일 필요", "검색 대상 엑셀 파일을 선택하세요.")
@@ -717,7 +717,7 @@ class CretopDataReaderApp:
 
 def main() -> int:
     root = Tk()
-    CretopDataReaderApp(root)
+    MaxawonApp(root)
     root.mainloop()
     return 0
 

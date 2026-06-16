@@ -7,8 +7,8 @@ at runtime.
 
 - `electron/**/*`: Electron main, preload, renderer HTML, CSS, and JavaScript.
 - `package.json`: Electron app metadata used by the packaged app.
-- `src/cretop_data_reader/**/*.py`: Python runtime modules, copied to
-  `resources/src/cretop_data_reader` through `extraResources` so Python can
+- `src/maxawon/**/*.py`: Python runtime modules, copied to
+  `resources/src/maxawon` through `extraResources` so Python can
   import them as normal files.
 
 ## Not included in the Electron build
@@ -30,7 +30,7 @@ inside the installed application directory.
 
 - Chrome profile: `<userData>/chrome-profile`
 - Network logs: `<userData>/network-logs`
-- Default table capture output: `<userData>/output/cretop_condition_search.csv`
+- Default table capture output: `<userData>/output/maxawon_condition_search.csv`
 
 ## Browser policy
 

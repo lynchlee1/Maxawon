@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from cretop_data_reader.network_logger import (
+from maxawon.network_logger import (
     body_extension,
     daily_log_path,
     purge_old_logs,

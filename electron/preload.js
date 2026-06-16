@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld("cretop", {
+contextBridge.exposeInMainWorld("maxawon", {
   getDefaults: () => ipcRenderer.invoke("app:get-defaults"),
   openChrome: () => ipcRenderer.invoke("app:open-chrome"),
   closeAppChrome: () => ipcRenderer.invoke("app:close-app-chrome"),

@@ -3,8 +3,8 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cretop-data-reader"
-version = "1.5.0"
+name = "maxawon"
+version = "2.0.0"
 dependencies = [
     "openpyxl>=3.1.5",
     "playwright>=1.45",
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-cretop-data-reader = "cretop_data_reader.app:main"
+maxawon = "maxawon.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

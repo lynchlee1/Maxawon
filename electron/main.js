@@ -10,11 +10,11 @@ const runtimeRoot = app.getPath("userData");
 const pythonRoot = app.isPackaged ? process.resourcesPath : projectRoot;
 const srcRoot = path.join(pythonRoot, "src");
 const profileDir = path.join(runtimeRoot, "chrome-profile");
-const defaultCaptureOutput = path.join(runtimeRoot, "output", "cretop_condition_search.csv");
+const defaultCaptureOutput = path.join(runtimeRoot, "output", "maxawon_condition_search.csv");
 const networkLogDir = path.join(runtimeRoot, "network-logs");
 const remoteDebuggingPort = "9222";
-const cretopUrl = "https://www.cretop.com/";
-const updateFeed = "https://github.com/lynchlee1/CretopDataReader/releases";
+const maxawonUrl = "https://www.maxawon.com/";
+const updateFeed = "https://github.com/lynchlee1/Maxawon/releases";
 
 let mainWindow;
 let networkLoggerProcess = null;
@@ -80,7 +80,7 @@ function createWindow() {
     height: 780,
     minWidth: 980,
     minHeight: 680,
-    title: "Cretop Data Reader",
+    title: "Maxawon",
     backgroundColor: "#eef2f7",
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     webPreferences: {
@@ -200,7 +200,7 @@ function startNetworkLogger() {
     pythonCommand(),
     [
       "-m",
-      "cretop_data_reader.network_logger",
+      "maxawon.network_logger",
       "--log-dir",
       networkLogDir,
       "--cdp-url",
@@ -416,7 +416,7 @@ ipcMain.handle("app:open-chrome", async () => {
       `--user-data-dir=${profileDir}`,
       `--remote-debugging-port=${remoteDebuggingPort}`,
       "--new-window",
-      cretopUrl,
+      maxawonUrl,
     ],
     { detached: true, stdio: "ignore" },
   );
@@ -462,10 +462,10 @@ ipcMain.handle("app:capture-table", (_event, payload) =>
 import json
 import sys
 from pathlib import Path
-from cretop_data_reader.table_capture import CapturedTable, capture_current_cretop_table_sync, write_table_csv
+from maxawon.table_capture import CapturedTable, capture_current_maxawon_table_sync, write_table_csv
 max_pages = int(sys.argv[1]) if sys.argv[1] else None
 output_path = Path(sys.argv[2])
-result = capture_current_cretop_table_sync(max_pages=max_pages)
+result = capture_current_maxawon_table_sync(max_pages=max_pages)
 if not result.rows:
     raise RuntimeError("현재 화면에서 복사할 테이블 데이터를 찾지 못했습니다.")
 output_path.parent.mkdir(parents=True, exist_ok=True)

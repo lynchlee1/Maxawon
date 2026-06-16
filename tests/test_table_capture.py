@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cretop_data_reader.table_capture import (
+from maxawon.table_capture import (
     CapturedTable,
     combine_tables,
     pick_largest_table,

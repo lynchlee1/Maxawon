@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from cretop_data_reader.candidate_resolution import (
+from maxawon.candidate_resolution import (
     CandidateDecision,
     candidate_contains_search_key,
     is_personal_business,
@@ -17,7 +17,7 @@ class CandidateResolutionTest(unittest.TestCase):
         self.assertTrue(is_personal_business({"ipoNm": "개인사업자"}))
         self.assertFalse(is_personal_business({"enpFormNm": "주식회사"}))
 
-    def test_normalizes_cretop_highlight_tags_and_spaces(self) -> None:
+    def test_normalizes_maxawon_highlight_tags_and_spaces(self) -> None:
         self.assertEqual("세종텔레콤(주)", normalize_company_name("<!HS>세종텔레콤<!HE> (주)"))
 
     def test_candidate_must_contain_search_key(self) -> None:

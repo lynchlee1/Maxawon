@@ -1,12 +1,12 @@
 {
-  "name": "cretop-data-reader-desktop",
+  "name": "maxawon-desktop",
   "version": "1.4.1",
   "private": true,
-  "description": "Modern Electron desktop UI for Cretop Data Reader",
+  "description": "Modern Electron desktop UI for Maxawon",
   "main": "electron/main.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lynchlee1/CretopDataReader.git"
+    "url": "https://github.com/lynchlee1/Maxawon.git"
   },
   "scripts": {
     "desktop": "electron .",
@@ -15,17 +15,17 @@
     "dist:dir": "electron-builder --dir"
   },
   "build": {
-    "appId": "com.cretopdatareader.desktop",
-    "productName": "Cretop Data Reader",
+    "appId": "com.maxawon.desktop",
+    "productName": "Maxawon",
     "directories": {
       "output": "dist"
     },
-    "artifactName": "Cretop-Data-Reader-Setup-${version}.${ext}",
+    "artifactName": "Maxawon-Setup-${version}.${ext}",
     "publish": [
       {
         "provider": "github",
         "owner": "lynchlee1",
-        "repo": "CretopDataReader"
+        "repo": "Maxawon"
       }
     ],
     "asar": true,
@@ -62,8 +62,8 @@
         "to": "pyproject.toml"
       },
       {
-        "from": "src/cretop_data_reader",
-        "to": "src/cretop_data_reader",
+        "from": "src/maxawon",
+        "to": "src/maxawon",
         "filter": [
           "**/*.py"
         ]

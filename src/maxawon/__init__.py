@@ -1,0 +1,1 @@
+"""Maxawon application package."""

@@ -7,12 +7,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from cretop_data_reader.browser_recovery import is_cretop_expired_page
+from maxawon.browser_recovery import is_maxawon_expired_page
 
 
 CDP_URL = "http://127.0.0.1:9222"
-CRETOP_EXPIRED_MESSAGE = (
-    "Cretop 페이지가 만료되었습니다. Chrome에서 새로고침한 뒤 앱으로 돌아와 "
+MAXAWON_EXPIRED_MESSAGE = (
+    "Maxawon 페이지가 만료되었습니다. Chrome에서 새로고침한 뒤 앱으로 돌아와 "
     "'로그인 완료'를 누르세요."
 )
 
@@ -99,7 +99,7 @@ def write_table_csv(path: Path, table: CapturedTable) -> None:
         writer.writerows(table.rows)
 
 
-async def capture_current_cretop_table(
+async def capture_current_maxawon_table(
     max_pages: int | None = None,
     cdp_url: str = CDP_URL,
 ) -> CaptureResult:
@@ -120,10 +120,10 @@ async def capture_current_cretop_table(
         except Exception as exc:
             raise RuntimeError(
                 "Chrome에 연결하지 못했습니다. 앱의 'Chrome 열기' 버튼으로 연 창에서 "
-                "Cretop에 로그인한 뒤 다시 시도하세요."
+                "Maxawon에 로그인한 뒤 다시 시도하세요."
             ) from exc
         try:
-            page = await _find_cretop_page(browser)
+            page = await _find_maxawon_page(browser)
             captured: list[CapturedTable] = []
             seen_tables: set[tuple[tuple[str, ...], tuple[tuple[str, ...], ...]]] = set()
 
@@ -168,8 +168,8 @@ async def capture_current_cretop_table(
             await browser.close()
 
 
-def capture_current_cretop_table_sync(max_pages: int | None = None, cdp_url: str = CDP_URL) -> CaptureResult:
-    return asyncio.run(capture_current_cretop_table(max_pages=max_pages, cdp_url=cdp_url))
+def capture_current_maxawon_table_sync(max_pages: int | None = None, cdp_url: str = CDP_URL) -> CaptureResult:
+    return asyncio.run(capture_current_maxawon_table(max_pages=max_pages, cdp_url=cdp_url))
 
 
 def table_signature(table: CapturedTable) -> tuple[tuple[str, ...], tuple[tuple[str, ...], ...]]:
@@ -180,18 +180,18 @@ def table_signature(table: CapturedTable) -> tuple[tuple[str, ...], tuple[tuple[
 
 
 async def _raise_if_expired(page: Any) -> None:
-    if await is_cretop_expired_page(page):
-        raise RuntimeError(CRETOP_EXPIRED_MESSAGE)
+    if await is_maxawon_expired_page(page):
+        raise RuntimeError(MAXAWON_EXPIRED_MESSAGE)
 
 
-async def _find_cretop_page(browser: Any) -> Any:
+async def _find_maxawon_page(browser: Any) -> Any:
     pages = [
         page
         for context in browser.contexts
         for page in context.pages
     ]
     for page in reversed(pages):
-        if "cretop.com" in page.url:
+        if "maxawon.com" in page.url:
             return page
     if pages:
         return pages[-1]

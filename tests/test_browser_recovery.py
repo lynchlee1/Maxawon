@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import unittest
 
-from cretop_data_reader.browser_recovery import (
-    CRETOP_HOME_URL,
-    is_cretop_expired_text,
-    recover_cretop_expired_page,
+from maxawon.browser_recovery import (
+    MAXAWON_HOME_URL,
+    is_maxawon_expired_text,
+    recover_maxawon_expired_page,
 )
 
 
@@ -36,28 +36,28 @@ class FakePage:
         self.wait_calls.append(state)
 
 
-class CretopRecoveryTests(unittest.IsolatedAsyncioTestCase):
+class MaxawonRecoveryTests(unittest.IsolatedAsyncioTestCase):
     def test_detects_expired_page_text(self) -> None:
-        self.assertTrue(is_cretop_expired_text("페이지가 만료되었습니다.\nResult Code: -8002"))
-        self.assertTrue(is_cretop_expired_text("웹브라우저는 새로고침(Ctrl+Shift+R)을 해주시고 앱의 경우 종료 후 재접속하시길 바랍니다.[8004]"))
+        self.assertTrue(is_maxawon_expired_text("페이지가 만료되었습니다.\nResult Code: -8002"))
+        self.assertTrue(is_maxawon_expired_text("웹브라우저는 새로고침(Ctrl+Shift+R)을 해주시고 앱의 경우 종료 후 재접속하시길 바랍니다.[8004]"))
 
     def test_ignores_normal_page_text(self) -> None:
-        self.assertFalse(is_cretop_expired_text("오늘은 어떤 일을 시작해 볼까요?"))
-        self.assertFalse(is_cretop_expired_text(""))
+        self.assertFalse(is_maxawon_expired_text("오늘은 어떤 일을 시작해 볼까요?"))
+        self.assertFalse(is_maxawon_expired_text(""))
 
     async def test_recovers_expired_page(self) -> None:
         page = FakePage("페이지가 만료되었습니다.\nResult Code: -8002")
 
-        recovered = await recover_cretop_expired_page(page)
+        recovered = await recover_maxawon_expired_page(page)
 
         self.assertTrue(recovered)
-        self.assertEqual(page.goto_calls, [CRETOP_HOME_URL])
+        self.assertEqual(page.goto_calls, [MAXAWON_HOME_URL])
         self.assertEqual(page.wait_calls, ["domcontentloaded"])
 
     async def test_does_not_reload_live_page(self) -> None:
         page = FakePage("로그인 후(online23)")
 
-        recovered = await recover_cretop_expired_page(page)
+        recovered = await recover_maxawon_expired_page(page)
 
         self.assertFalse(recovered)
         self.assertEqual(page.goto_calls, [])

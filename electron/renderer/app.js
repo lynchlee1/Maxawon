@@ -76,24 +76,24 @@ function isExpiredError(error) {
 
 async function runCapture(payload, resumed = false) {
   if (!state.loginDone) {
-    window.alert("Cretop에 로그인한 뒤 '로그인 완료'를 누르세요.");
+    window.alert("Maxawon에 로그인한 뒤 '로그인 완료'를 누르세요.");
     return;
   }
 
   state.captureRunning = true;
   $("#captureTable").disabled = true;
-  addLog(resumed ? "보류된 조건검색 결과 복사를 재개합니다." : "현재 Cretop 화면의 조건검색 결과 테이블 복사를 시작합니다.");
+  addLog(resumed ? "보류된 조건검색 테이블 CSV 저장을 재개합니다." : "현재 조건검색 테이블 CSV 저장을 시작합니다.");
 
   try {
-    const result = await window.cretop.captureTable(payload);
+    const result = await window.maxawon.captureTable(payload);
     state.pendingCapture = null;
     addLog(`조건검색 결과 ${result.rowCount}행을 저장했습니다: ${result.outputPath}`);
   } catch (error) {
     if (isExpiredError(error)) {
       state.pendingCapture = payload;
       setLogin("재확인 필요", false);
-      addLog("Cretop 페이지가 만료되어 작업을 일시 중단했습니다. Chrome에서 새로고침한 뒤 앱의 '로그인 완료'를 누르면 다시 실행합니다.");
-      window.alert("Cretop 페이지가 만료되었습니다. Chrome에서 새로고침한 뒤 앱으로 돌아와 '로그인 완료'를 누르세요.");
+      addLog("Maxawon 페이지가 만료되어 작업을 일시 중단했습니다. Chrome에서 새로고침한 뒤 앱의 '로그인 완료'를 누르면 다시 실행합니다.");
+      window.alert("Maxawon 페이지가 만료되었습니다. Chrome에서 새로고침한 뒤 앱으로 돌아와 '로그인 완료'를 누르세요.");
     } else {
       addLog(error.message);
       window.alert(error.message);
@@ -105,7 +105,7 @@ async function runCapture(payload, resumed = false) {
 }
 
 async function init() {
-  const defaults = await window.cretop.getDefaults();
+  const defaults = await window.maxawon.getDefaults();
   state.captureOutput = defaults.defaultCaptureOutput;
   $("#captureOutput").value = defaults.defaultCaptureOutput;
   if (defaults.appVersion) {
@@ -114,10 +114,10 @@ async function init() {
   }
   setText("#updateFeed", defaults.updateFeed);
   if (!defaults.updatesSupported) {
-    setUpdateStatus({ status: "unsupported", message: "업데이트 확인은 패키징된 앱에서만 사용할 수 있습니다." });
+    setUpdateStatus({ status: "unsupported", message: "앱 업데이트 확인은 패키징된 앱에서만 사용할 수 있습니다." });
   }
 
-  window.cretop.onUpdateStatus((payload) => {
+  window.maxawon.onUpdateStatus((payload) => {
     setUpdateStatus(payload);
     addLog(payload.message);
   });
@@ -127,7 +127,7 @@ async function init() {
   });
 
   $("#openChrome").addEventListener("click", async () => {
-    const result = await runAction(() => window.cretop.openChrome());
+    const result = await runAction(() => window.maxawon.openChrome());
     if (!result) return;
     addLog(result.message);
   });
@@ -141,7 +141,7 @@ async function init() {
   });
 
   $("#closeAppChrome").addEventListener("click", async () => {
-    const result = await runAction(() => window.cretop.closeAppChrome());
+    const result = await runAction(() => window.maxawon.closeAppChrome());
     if (!result) return;
     setLogin("미연결", false);
     addLog(result.message);
@@ -151,14 +151,14 @@ async function init() {
     const confirmed = window.confirm("사용자가 직접 연 Chrome까지 모두 종료합니다. 계속할까요?");
     if (!confirmed) return;
 
-    const result = await runAction(() => window.cretop.closeAllChrome());
+    const result = await runAction(() => window.maxawon.closeAllChrome());
     if (!result) return;
     setLogin("미연결", false);
     addLog(result.message);
   });
 
   $("#pickOutput").addEventListener("click", async () => {
-    const selected = await runAction(() => window.cretop.pickCaptureOutput(state.captureOutput));
+    const selected = await runAction(() => window.maxawon.pickCaptureOutput(state.captureOutput));
     if (!selected) return;
     state.captureOutput = selected;
     $("#captureOutput").value = selected;
@@ -167,7 +167,7 @@ async function init() {
 
   $("#captureTable").addEventListener("click", async () => {
     if (!state.loginDone) {
-      window.alert("Cretop에 로그인한 뒤 '로그인 완료'를 누르세요.");
+      window.alert("Maxawon에 로그인한 뒤 '로그인 완료'를 누르세요.");
       return;
     }
 
@@ -190,14 +190,14 @@ async function init() {
     $("#downloadUpdate").disabled = true;
     $("#installUpdate").disabled = true;
 
-    const result = await runAction(() => window.cretop.checkForUpdates());
+    const result = await runAction(() => window.maxawon.checkForUpdates());
     if (!result) return;
     setUpdateStatus(result);
     addLog(result.message);
   });
 
   $("#downloadUpdate").addEventListener("click", async () => {
-    const result = await runAction(() => window.cretop.downloadUpdate());
+    const result = await runAction(() => window.maxawon.downloadUpdate());
     if (!result) return;
     setUpdateStatus(result);
     addLog(result.message);
@@ -207,7 +207,7 @@ async function init() {
     const confirmed = window.confirm("앱을 재시작하고 다운로드된 업데이트를 설치할까요?");
     if (!confirmed) return;
 
-    const result = await runAction(() => window.cretop.installUpdate());
+    const result = await runAction(() => window.maxawon.installUpdate());
     if (!result) return;
     setUpdateStatus(result);
     addLog(result.message);

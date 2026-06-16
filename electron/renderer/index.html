@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cretop Data Reader</title>
+    <title>Maxawon</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -12,15 +12,15 @@
         <div class="brand">
           <span class="brand-mark">C</span>
           <div>
-            <strong>Cretop</strong>
+            <strong>Maxawon</strong>
             <small>Data Reader</small>
           </div>
         </div>
 
         <nav class="nav">
-          <button class="nav-button active" data-view="session">세션 연결</button>
-          <button class="nav-button" data-view="capture">조건검색 복사</button>
-          <button class="nav-button" data-view="updates">업데이트 확인</button>
+          <button class="nav-button active" data-view="session">Chrome 로그인 세션 연결</button>
+          <button class="nav-button" data-view="capture">조건검색 테이블 CSV 저장</button>
+          <button class="nav-button" data-view="updates">앱 업데이트 확인 및 설치</button>
         </nav>
 
         <div id="appVersion" class="app-version"></div>
@@ -30,7 +30,7 @@
         <header class="topbar">
           <div>
             <p class="eyebrow">Desktop Console</p>
-            <h1>Cretop Data Reader</h1>
+            <h1>Maxawon</h1>
           </div>
           <div class="top-status">
             <span id="loginPill" class="connection-pill disconnected">
@@ -41,97 +41,186 @@
         </header>
 
         <section id="session" class="view active">
-          <div class="session-panel">
-            <div class="session-actions">
-              <button id="openChrome" class="primary">Chrome 열기</button>
-              <button id="loginDone" class="primary">로그인 완료</button>
-              <button id="closeAppChrome" class="danger">실행된 Chrome 종료</button>
-              <button id="closeAllChrome" class="danger">전체 Chrome 종료</button>
+          <div class="panel page-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Chrome Session</p>
+                <h2>Chrome 로그인 세션 연결</h2>
+              </div>
+              <div class="panel-actions">
+                <button id="openChrome" class="primary">Chrome 열기</button>
+                <button id="loginDone" class="primary">로그인 완료</button>
+                <button id="closeAppChrome" class="danger">실행된 Chrome 종료</button>
+                <button id="closeAllChrome" class="danger">전체 Chrome 종료</button>
+              </div>
+            </div>
+
+            <div class="page-body">
+              <section class="page-section guide-section">
+                <h3>사용 설명서</h3>
+                <ol>
+                  <li><code>Chrome 열기</code>를 누릅니다.</li>
+                  <li>열린 Chrome에서 Maxawon에 직접 로그인합니다.</li>
+                  <li>Maxawon에서 필요한 화면까지 이동합니다.</li>
+                  <li>앱으로 돌아와 <code>로그인 완료</code>를 누릅니다.</li>
+                  <li>왼쪽 메뉴에서 실행할 기능을 선택합니다.</li>
+                </ol>
+              </section>
+
+              <section class="page-section boundary-section">
+                <h3>기능 경계</h3>
+                <dl class="boundary-list">
+                  <div>
+                    <dt>입력</dt>
+                    <dd>사용자가 Chrome에서 직접 로그인한 브라우저 세션</dd>
+                  </div>
+                  <div>
+                    <dt>동작</dt>
+                    <dd>앱에서 실행할 Chrome을 열고 로그인 완료 상태를 표시합니다.</dd>
+                  </div>
+                  <div>
+                    <dt>제외</dt>
+                    <dd>로그인 자동화, CAPTCHA 처리, 접근 제한 우회는 하지 않습니다.</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="page-section note-section">
+                <h3>Chrome 종료 범위</h3>
+                <dl class="boundary-list">
+                  <div>
+                    <dt>실행된 Chrome 종료</dt>
+                    <dd>이 앱에서 연 Chrome만 종료합니다.</dd>
+                  </div>
+                  <div>
+                    <dt>전체 Chrome 종료</dt>
+                    <dd>사용자가 따로 열어 둔 Chrome까지 닫을 수 있습니다.</dd>
+                  </div>
+                </dl>
+              </section>
             </div>
           </div>
         </section>
 
         <section id="capture" class="view">
-          <div class="panel">
+          <div class="panel page-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Condition Search</p>
-                <h2>조건검색 결과 복사</h2>
+                <p class="eyebrow">Condition Search Export</p>
+                <h2>조건검색 테이블 CSV 저장</h2>
               </div>
-              <button id="captureTable" class="primary">화면 테이블 복사</button>
+              <div class="panel-actions">
+                <button id="captureTable" class="primary">현재 조건검색 테이블 저장</button>
+              </div>
             </div>
 
-            <div class="form-grid">
-              <label>
-                <span>최대 페이지</span>
-                <input id="maxPages" type="number" min="1" placeholder="비우면 끝까지" />
-              </label>
-              <label class="file-field">
-                <span>저장 파일</span>
-                <div>
-                  <input id="captureOutput" type="text" readonly />
-                  <button id="pickOutput" class="secondary">변경</button>
+            <div class="page-body">
+              <section class="page-section control-section">
+                <h3>실행 설정</h3>
+                <div class="form-grid">
+                  <label>
+                    <span>최대 페이지</span>
+                    <input id="maxPages" type="number" min="1" placeholder="비우면 끝까지" />
+                  </label>
+                  <label class="file-field">
+                    <span>저장 파일</span>
+                    <div>
+                      <input id="captureOutput" type="text" readonly />
+                      <button id="pickOutput" class="secondary">변경</button>
+                    </div>
+                  </label>
                 </div>
-              </label>
+              </section>
+
+              <section class="page-section boundary-section">
+                <h3>기능 경계</h3>
+                <dl class="boundary-list">
+                  <div>
+                    <dt>입력</dt>
+                    <dd>현재 Chrome 화면에 표시된 조건검색 결과 테이블</dd>
+                  </div>
+                  <div>
+                    <dt>동작</dt>
+                    <dd>보이는 결과 테이블을 읽고 지정한 CSV 파일로 저장합니다.</dd>
+                  </div>
+                  <div>
+                    <dt>제외</dt>
+                    <dd>조건검색 실행, 후보 회사 선택, 로그인 자동화는 이 기능에서 처리하지 않습니다.</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="page-section guide-section">
+                <h3>기능 설명서</h3>
+                <ol>
+                  <li>Chrome에서 조건검색 결과 테이블 화면을 띄웁니다.</li>
+                  <li>저장 파일과 최대 페이지를 확인합니다.</li>
+                  <li><code>현재 조건검색 테이블 저장</code>을 누릅니다.</li>
+                </ol>
+              </section>
             </div>
-
-            <details class="capture-guide">
-              <summary>사용 설명서</summary>
-              <div class="manual-content">
-                <section>
-                  <h3>기본 사용 순서</h3>
-                  <ol>
-                    <li><code>Chrome 열기</code>를 누릅니다.</li>
-                    <li>열린 Chrome에서 Cretop에 직접 로그인합니다.</li>
-                    <li>Cretop에서 조건검색을 실행하고 결과 테이블 화면까지 이동합니다.</li>
-                    <li>앱으로 돌아와 <code>로그인 완료</code>를 누릅니다.</li>
-                    <li>저장 파일과 최대 페이지를 확인합니다.</li>
-                    <li><code>화면 테이블 복사</code>를 누릅니다.</li>
-                  </ol>
-                </section>
-
-                <section>
-                  <h3>저장 파일</h3>
-                  <p>복사 결과는 CSV 파일로 저장됩니다. 다른 위치에 저장하려면 <code>변경</code> 버튼을 사용하세요.</p>
-                </section>
-
-                <section>
-                  <h3>Chrome 종료</h3>
-                  <p><code>실행된 Chrome 종료</code>는 이 앱에서 연 Chrome만 종료합니다. <code>전체 Chrome 종료</code>는 사용자가 따로 열어 둔 Chrome까지 닫을 수 있습니다.</p>
-                </section>
-              </div>
-            </details>
           </div>
         </section>
 
         <section id="updates" class="view">
-          <div class="panel">
+          <div class="panel page-panel">
             <div class="panel-heading">
               <div>
-                <p class="eyebrow">Updater</p>
-                <h2>업데이트 확인</h2>
+                <p class="eyebrow">App Update</p>
+                <h2>앱 업데이트 확인 및 설치</h2>
               </div>
-              <button id="checkUpdates" class="primary">업데이트 확인</button>
+              <div class="panel-actions">
+                <button id="checkUpdates" class="primary">새 버전 확인</button>
+                <button id="downloadUpdate" class="secondary" disabled>업데이트 다운로드</button>
+                <button id="installUpdate" class="primary" disabled>재시작 후 설치</button>
+              </div>
             </div>
 
-            <dl class="detail-list">
-              <div>
-                <dt>현재 버전</dt>
-                <dd id="currentVersion">확인 중</dd>
-              </div>
-              <div>
-                <dt>업데이트 기준</dt>
-                <dd id="updateFeed">확인 중</dd>
-              </div>
-              <div>
-                <dt>상태</dt>
-                <dd id="updateStatus">대기 중</dd>
-              </div>
-            </dl>
+            <div class="page-body">
+              <section class="page-section status-section">
+                <h3>업데이트 상태</h3>
+                <dl class="detail-list">
+                  <div>
+                    <dt>현재 버전</dt>
+                    <dd id="currentVersion">확인 중</dd>
+                  </div>
+                  <div>
+                    <dt>업데이트 기준</dt>
+                    <dd id="updateFeed">확인 중</dd>
+                  </div>
+                  <div>
+                    <dt>상태</dt>
+                    <dd id="updateStatus">대기 중</dd>
+                  </div>
+                </dl>
+              </section>
 
-            <div class="update-actions">
-              <button id="downloadUpdate" class="secondary" disabled>다운로드</button>
-              <button id="installUpdate" class="primary" disabled>재시작 후 설치</button>
+              <section class="page-section boundary-section">
+                <h3>기능 경계</h3>
+                <dl class="boundary-list">
+                  <div>
+                    <dt>입력</dt>
+                    <dd>현재 설치된 앱 버전과 GitHub 릴리스 업데이트 기준</dd>
+                  </div>
+                  <div>
+                    <dt>동작</dt>
+                    <dd>새 버전을 확인하고, 사용자가 선택하면 다운로드 후 재시작 설치를 진행합니다.</dd>
+                  </div>
+                  <div>
+                    <dt>제외</dt>
+                    <dd>패키징되지 않은 개발 실행 상태에서는 실제 업데이트 설치를 진행하지 않습니다.</dd>
+                  </div>
+                </dl>
+              </section>
+
+              <section class="page-section guide-section">
+                <h3>기능 설명서</h3>
+                <ol>
+                  <li><code>새 버전 확인</code>을 눌러 릴리스 상태를 확인합니다.</li>
+                  <li>새 버전이 있으면 <code>업데이트 다운로드</code>를 누릅니다.</li>
+                  <li>다운로드가 끝나면 <code>재시작 후 설치</code>를 누릅니다.</li>
+                </ol>
+              </section>
             </div>
           </div>
         </section>
