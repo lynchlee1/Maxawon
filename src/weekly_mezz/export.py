@@ -18,12 +18,10 @@ ENABLE_AUDIT_JSON = False
 
 HEADER_FILL = PatternFill(fill_type="solid", fgColor="00D084")
 HEADER_FONT = Font(bold=True, color="06110B")
-LINK_FONT = Font(color="7DD3FC", underline="single")
 BORDER_SIDE = Side(style="thin", color="263244")
 HEADER_BORDER = Border(left=BORDER_SIDE, right=BORDER_SIDE, top=BORDER_SIDE, bottom=BORDER_SIDE)
 BODY_BORDER = Border(left=BORDER_SIDE, right=BORDER_SIDE, top=BORDER_SIDE, bottom=BORDER_SIDE)
 HEADER_ALIGNMENT = Alignment(horizontal="center", vertical="center", wrap_text=True)
-BODY_ALIGNMENT = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
 SHARE_TYPE_SUFFIX_PATTERN = re.compile(
     r"\s*(?:(?:기명식|무기명식)\s*)?(?:보통주식?|우선주식?|전환우선주식?|상환우선주식?|상환전환우선주식?|종류주식)\s*$"
@@ -39,46 +37,32 @@ ISSUER_MARKET_LABELS = {
 }
 
 COLUMN_SPECS = [
-    {"group": None, "header": "공시일", "key": "filing_date", "width": 12},
-    {"group": None, "header": "헤더", "key": "report_header", "width": 12},
-    {"group": "발행사", "header": "기업명", "key": "issuer_company_name", "width": 20},
-    {"group": "발행사", "header": "상장구분", "key": "issuer_market", "width": 12},
-    {"group": "발행사", "header": "종목코드", "key": "issuer_stock_code", "width": 12},
-    {"group": "대상주식", "header": "기업명", "key": "target_company_name", "width": 20},
-    {"group": "대상주식", "header": "종목코드", "key": "target_stock_code", "width": 12},
-    {"group": None, "header": "회차", "key": "round", "width": 7},
-    {"group": None, "header": "종류", "key": "security_type", "width": 7},
-    {"group": None, "header": "발행금액", "key": "issue_amount_eok", "width": 11},
-    {"group": None, "header": "행사가액", "key": "strike_price", "width": 11},
-    {"group": None, "header": "할증률", "key": "premium_pct", "width": 9},
-    {"group": None, "header": "납입일", "key": "issue_date", "width": 12},
-    {"group": None, "header": "만기일", "key": "maturity_date", "width": 12},
-    {"group": None, "header": "표면이자율", "key": "coupon_rate_pct", "width": 11},
-    {"group": None, "header": "만기이자율", "key": "maturity_rate_pct", "width": 11},
-    {"group": "Put", "header": "시작일", "key": "put_start_date", "width": 12},
-    {"group": "Put", "header": "기한(년)", "key": "put_term_years", "width": 9},
-    {"group": "Put", "header": "YTP", "key": "put_ytp_pct", "width": 8},
-    {"group": "Put", "header": "세부일정", "key": "put_schedule_json", "width": 36},
-    {"group": "Call", "header": "시작일", "key": "call_start_date", "width": 12},
-    {"group": "Call", "header": "기한(년)", "key": "call_term_years", "width": 9},
-    {"group": "Call", "header": "YTC", "key": "call_ytc_pct", "width": 8},
-    {"group": "Call", "header": "한도", "key": "call_cap_pct", "width": 8},
-    {"group": "Call", "header": "세부일정", "key": "call_schedule_json", "width": 36},
-    {"group": "Refixing", "header": "주기", "key": "refixing_cycle_months", "width": 8},
-    {"group": "Refixing", "header": "리픽싱(원)", "key": "refixing_price_won", "width": 11},
-    {"group": "Refixing", "header": "리픽싱(%)", "key": "refixing_floor_pct", "width": 10},
-    {"group": "Refixing", "header": "리픽싱사유", "key": "refixing_reason", "width": 28},
-    {"group": None, "header": "투자자", "key": "investors_text", "width": 34},
-    {"group": None, "header": "당사검토", "key": "internal_review", "width": 12},
-    {"group": None, "header": "주간사", "key": "underwriter", "width": 12},
-    {"group": None, "header": "링크", "key": "dart_link", "width": 32},
-    {"group": None, "header": "정정이전", "key": "previous_rcept_no", "width": 16},
+    {"header": "헤더", "key": "report_header", "width": 12, "align": "center"},
+    {"header": "공시일", "key": "filing_date_display", "width": 12, "align": "center"},
+    {"header": "납입일", "key": "issue_date_display", "width": 12, "align": "center"},
+    {"header": "발행사 기업명", "key": "issuer_company_name", "width": 20, "align": "left", "margin": True},
+    {"header": "교환대상 기업명", "key": "target_company_name", "width": 20, "align": "left", "margin": True},
+    {"header": "종류", "key": "security_type", "width": 7, "align": "center"},
+    {"header": "벤처여부", "key": "venture_blank", "width": 10, "align": "center"},
+    {"header": "시가총액", "key": "market_cap_blank", "width": 12, "align": "right", "margin": True},
+    {"header": "발행금액", "key": "issue_amount_eok", "width": 12, "align": "right", "margin": True},
+    {"header": "행사가액", "key": "strike_price", "width": 12, "align": "right", "margin": True},
+    {"header": "할증률", "key": "premium_text", "width": 34, "align": "left", "margin": True},
+    {"header": "만기", "key": "maturity_term_text", "width": 9, "align": "center"},
+    {"header": "PUT", "key": "put_text", "width": 8, "align": "left"},
+    {"header": "표면이자율", "key": "coupon_rate_text", "width": 11, "align": "right"},
+    {"header": "만기이자율", "key": "maturity_rate_text", "width": 12, "align": "left"},
+    {"header": "CALL", "key": "call_blank", "width": 8, "align": "center"},
+    {"header": "Refixing", "key": "refixing_text", "width": 34, "align": "left", "margin": True},
+    {"header": "투자자", "key": "investors_text", "width": 34, "align": "left", "margin": True},
+    {"header": "섹터", "key": "sector_blank", "width": 12, "align": "left", "margin": True},
+    {"header": "당사검토", "key": "internal_review", "width": 12, "align": "left", "margin": True},
+    {"header": "주관", "key": "lead_blank", "width": 12, "align": "left", "margin": True},
 ]
 
 NUMERIC_KEYS = {
     "issue_amount_eok",
     "strike_price",
-    "premium_pct",
     "coupon_rate_pct",
     "maturity_rate_pct",
     "put_term_years",
@@ -231,6 +215,32 @@ def parse_iso_date(value):
         return None
 
 
+def format_short_date(value) -> str:
+    parsed = parse_iso_date(value)
+    return parsed.strftime("%y-%m-%d") if parsed else ""
+
+
+def format_rate_text(value, prefix: str = "") -> str:
+    parsed = parse_numeric_value(value)
+    if parsed is None:
+        return prefix.rstrip()
+    return f"{prefix}{parsed:.1f}%"
+
+
+def calculate_maturity_term_text(issue_date, maturity_date) -> str:
+    issue_date_value = parse_iso_date(issue_date)
+    maturity_date_value = parse_iso_date(maturity_date)
+    if not issue_date_value or not maturity_date_value:
+        return ""
+    return f"{(maturity_date_value - issue_date_value).days / 365.0:.1f}년"
+
+
+def format_refixing_text(floor_pct, reason) -> str:
+    floor_text = format_rate_text(floor_pct)
+    reason_text = "" if reason in (None, "-") else str(reason).strip()
+    return " ".join(part for part in (floor_text, reason_text) if part)
+
+
 def normalize_option_schedule_triplets(schedules) -> list[list[str]]:
     normalized_rows = []
     for item in schedules or []:
@@ -345,10 +355,17 @@ def build_export_row(
     target_stock_code = company_stock_code_map.get(normalize_company_name_for_match(target_company_name), "")
     put_schedules = parsed.get("PUT옵션일정표") or parsed.get("_PUT옵션일정표상세") or []
     call_schedules = parsed.get("CALL옵션일정표") or parsed.get("_CALL옵션일정표상세") or []
+    filing_date = extract_filing_date_from_rcept_no(report.get("rcept_no"))
+    maturity_date = (parsed.get("만기일") or "") if parsed.get("만기일") != "-" else ""
+    refixing_floor_pct = parse_numeric_value(
+        parsed.get("리픽싱(%)") if parsed.get("리픽싱(%)") is not None else parsed.get("리픽싱가격")
+    )
+    refixing_reason = parsed.get("리픽싱사유") or parsed.get("리픽싱내용") or ""
 
     return {
         "rcept_no": report.get("rcept_no", ""),
-        "filing_date": extract_filing_date_from_rcept_no(report.get("rcept_no")),
+        "filing_date": filing_date,
+        "filing_date_display": format_short_date(filing_date),
         "report_header": extract_report_header(report.get("report_nm")),
         "issuer_company_name": report.get("corp_name", ""),
         "issuer_market": ISSUER_MARKET_LABELS.get(report.get("corp_cls"), report.get("corp_cls", "")),
@@ -359,11 +376,16 @@ def build_export_row(
         "security_type": security_type,
         "issue_amount_eok": parse_numeric_value(parsed.get("발행금액") if parsed.get("발행금액") is not None else parsed.get("발행금액(억)")),
         "strike_price": parse_numeric_value(parsed.get("행사가액") if parsed.get("행사가액") is not None else parsed.get("전환가액(원)")),
-        "premium_pct": parse_numeric_value(parsed.get("할증률(%)")),
+        "premium_text": parsed.get("할증관련텍스트") or "",
         "issue_date": issue_date if issue_date != "-" else "",
-        "maturity_date": (parsed.get("만기일") or "") if parsed.get("만기일") != "-" else "",
+        "issue_date_display": format_short_date(issue_date if issue_date != "-" else ""),
+        "maturity_date": maturity_date,
+        "maturity_term_text": calculate_maturity_term_text(issue_date, maturity_date),
         "coupon_rate_pct": parse_numeric_value(parsed.get("표면이율")),
+        "coupon_rate_text": format_rate_text(parsed.get("표면이율")),
         "maturity_rate_pct": parse_numeric_value(parsed.get("만기이율")),
+        "maturity_rate_text": format_rate_text(parsed.get("만기이율"), prefix="/ "),
+        "put_text": "/ ",
         "put_start_date": get_first_option_start_date(put_schedules),
         "put_term_years": calculate_option_term_years(issue_date, put_schedules),
         "put_ytp_pct": parse_numeric_value(parsed.get("YTP(%)")),
@@ -375,10 +397,16 @@ def build_export_row(
         "call_schedule_json": serialize_option_schedule(call_schedules),
         "refixing_cycle_months": parse_numeric_value(parsed.get("리픽싱주가")),
         "refixing_price_won": parse_numeric_value(parsed.get("리픽싱(원)")),
-        "refixing_floor_pct": parse_numeric_value(parsed.get("리픽싱(%)") if parsed.get("리픽싱(%)") is not None else parsed.get("리픽싱가격")),
-        "refixing_reason": parsed.get("리픽싱사유") or parsed.get("리픽싱내용") or "",
+        "refixing_floor_pct": refixing_floor_pct,
+        "refixing_reason": refixing_reason,
+        "refixing_text": format_refixing_text(refixing_floor_pct, refixing_reason),
         "investors_text": format_investors_text(parsed),
+        "venture_blank": "",
+        "market_cap_blank": "",
+        "call_blank": "",
+        "sector_blank": "",
         "internal_review": "",
+        "lead_blank": "",
         "underwriter": "",
         "dart_link": build_dart_link(report.get("rcept_no")),
         "previous_rcept_no": previous_rcept_no,
@@ -505,36 +533,15 @@ def _write_summary_sheet(workbook, summary: dict) -> None:
 def _write_report_sheet(sheet, rows: list[dict]) -> None:
     _write_header(sheet)
     _write_rows(sheet, rows)
-    sheet.freeze_panes = "A3"
+    sheet.freeze_panes = "A2"
     sheet.sheet_view.showGridLines = False
 
 
 def _write_header(sheet) -> None:
-    current_column = 1
-    while current_column <= len(COLUMN_SPECS):
-        spec = COLUMN_SPECS[current_column - 1]
-        group = spec["group"]
-        if group is None:
-            sheet.cell(row=1, column=current_column, value=spec["header"])
-            sheet.merge_cells(start_row=1, start_column=current_column, end_row=2, end_column=current_column)
-            _style_header_range(sheet, 1, current_column, 2, current_column)
-            current_column += 1
-            continue
-
-        start_column = current_column
-        while current_column <= len(COLUMN_SPECS) and COLUMN_SPECS[current_column - 1]["group"] == group:
-            current_column += 1
-        end_column = current_column - 1
-        sheet.cell(row=1, column=start_column, value=group)
-        sheet.merge_cells(start_row=1, start_column=start_column, end_row=1, end_column=end_column)
-        _style_header_range(sheet, 1, start_column, 1, end_column)
-        for column in range(start_column, end_column + 1):
-            _style_header_cell(sheet.cell(row=2, column=column, value=COLUMN_SPECS[column - 1]["header"]))
-
     for index, spec in enumerate(COLUMN_SPECS, start=1):
+        _style_header_cell(sheet.cell(row=1, column=index, value=spec["header"]))
         sheet.column_dimensions[get_column_letter(index)].width = spec["width"]
     sheet.row_dimensions[1].height = 22
-    sheet.row_dimensions[2].height = 24
 
 
 def _style_header_cell(cell) -> None:
@@ -544,37 +551,23 @@ def _style_header_cell(cell) -> None:
     cell.border = HEADER_BORDER
 
 
-def _style_header_range(sheet, start_row: int, start_column: int, end_row: int, end_column: int) -> None:
-    for row in range(start_row, end_row + 1):
-        for column in range(start_column, end_column + 1):
-            cell = sheet.cell(row=row, column=column)
-            cell.fill = HEADER_FILL
-            cell.font = HEADER_FONT
-            cell.alignment = HEADER_ALIGNMENT
-            cell.border = Border(
-                left=BORDER_SIDE if column == start_column else None,
-                right=BORDER_SIDE if column == end_column else None,
-                top=BORDER_SIDE if row == start_row else None,
-                bottom=BORDER_SIDE if row == end_row else None,
-            )
-
-
 def _write_rows(sheet, rows: list[dict]) -> None:
-    for row_index, row in enumerate(rows, start=3):
+    for row_index, row in enumerate(rows, start=2):
         for column_index, spec in enumerate(COLUMN_SPECS, start=1):
             value = row.get(spec["key"], "")
             cell = sheet.cell(row=row_index, column=column_index, value=value)
-            _style_body_cell(cell, spec["key"])
-            if spec["key"] == "dart_link" and value:
-                cell.hyperlink = value
-                cell.font = LINK_FONT
-        if row.get("previous_rcept_no") and sheet.cell(row=row_index, column=32).value in (None, ""):
-            sheet.cell(row=row_index, column=32, value=row.get("previous_rcept_no"))
+            _style_body_cell(cell, spec)
         sheet.row_dimensions[row_index].height = 42
 
 
-def _style_body_cell(cell, key: str) -> None:
-    cell.alignment = BODY_ALIGNMENT
+def _style_body_cell(cell, spec: dict) -> None:
+    key = spec["key"]
+    cell.alignment = Alignment(
+        horizontal=spec.get("align", "left"),
+        vertical="center",
+        wrap_text=True,
+        indent=1 if spec.get("margin") else 0,
+    )
     cell.border = BODY_BORDER
     if key in INTEGER_FORMAT_KEYS and isinstance(cell.value, (int, float)):
         cell.number_format = "#,##0"

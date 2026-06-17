@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "maxawon"
-version = "2.5.3"
+version = "2.5.4"
 dependencies = [
     "beautifulsoup4>=4.12",
     "lxml>=5.2",

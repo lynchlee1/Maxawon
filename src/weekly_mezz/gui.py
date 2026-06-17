@@ -30,7 +30,7 @@ class MezzanineCollectorApp:
             raise RuntimeError("ttkbootstrap is not installed.") from TTKBOOTSTRAP_IMPORT_ERROR
 
         self.root = ttk.Window(themename="flatly")
-        self.root.title("Weekly Mezzanine")
+        self.root.title("주간 메자닌 발행현황")
         self.root.geometry("980x1120")
         self.root.resizable(False, False)
 
@@ -61,7 +61,7 @@ class MezzanineCollectorApp:
 
         tk.Label(
             header,
-            text="WEEKLY MEZZANINE",
+            text="주간 메자닌 발행현황",
             font=("Arial", 19, "bold"),
             fg=self.TEXT,
             bg=self.BG,
@@ -169,7 +169,7 @@ class MezzanineCollectorApp:
     def _normalize_last_report_value(self):
         value = self.last_reprt_at_var.get().strip().upper() or "Y"
         if value not in {"Y", "N"}:
-            messagebox.showerror("Weekly Mezzanine", "최종보고서만 값은 Y 또는 N이어야 합니다.")
+            messagebox.showerror("주간 메자닌 발행현황", "최종보고서만 값은 Y 또는 N이어야 합니다.")
             return False
         self.last_reprt_at_var.set(value)
         return True
@@ -196,13 +196,13 @@ class MezzanineCollectorApp:
 
     def run_collection(self):
         if self.worker and self.worker.is_alive():
-            messagebox.showinfo("Weekly Mezzanine", "Already running.")
+            messagebox.showinfo("주간 메자닌 발행현황", "Already running.")
             return
         try:
             start_date = parse_yyyymmdd(self.start_date_var.get())
             end_date = parse_yyyymmdd(self.end_date_var.get())
         except ValueError:
-            messagebox.showerror("Weekly Mezzanine", "Dates must use YYYYMMDD format.")
+            messagebox.showerror("주간 메자닌 발행현황", "Dates must use YYYYMMDD format.")
             return
 
         if not self.save_settings():
@@ -236,7 +236,7 @@ class MezzanineCollectorApp:
     def open_result(self):
         path = self.last_output_path or Path(self.output_path_var.get()).expanduser()
         if not path.exists():
-            messagebox.showinfo("Weekly Mezzanine", "No result file is available.")
+            messagebox.showinfo("주간 메자닌 발행현황", "No result file is available.")
             return
         if sys.platform == "darwin":
             subprocess.Popen(["open", str(path)])

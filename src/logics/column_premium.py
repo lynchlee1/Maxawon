@@ -62,6 +62,7 @@ PREMIUM_SOURCE_END_PATTERN = re.compile(
     r"|대표주관회사|보증기관|담보제공에 관한 사항|이사회결의일(?:\(결정일\))?"
     r"|\b\d{1,2}(?:-\d+)?\.\s)"
 )
+PREMIUM_RELEVANT_TEXT_PATTERN = re.compile(r"기준(?:주가|가액|가격)|할증|프리미엄|가중산술평균주가")
 
 
 def _premium_result_from_premium_pct(premium_pct):
@@ -192,7 +193,19 @@ def extract_premium_rate(text: str):
 
 
 def populate_premium_fields(result_dict, premium_text):
-    base_ratio_pct, premium_pct = extract_premium_rate(premium_text)
+    normalized_premium_text = _normalize_premium_text(premium_text)
+    premium_source_text = extract_premium_source_text(normalized_premium_text)
+    if (
+        not premium_source_text
+        and normalized_premium_text
+        and len(normalized_premium_text) <= PREMIUM_SOURCE_WINDOW
+        and PREMIUM_RELEVANT_TEXT_PATTERN.search(normalized_premium_text)
+    ):
+        premium_source_text = normalized_premium_text
+    if premium_source_text:
+        result_dict["할증관련텍스트"] = premium_source_text
+
+    base_ratio_pct, premium_pct = extract_premium_rate(normalized_premium_text)
     if base_ratio_pct is not None:
         result_dict["기준주가대비발행비율(%)"] = base_ratio_pct
         result_dict["할증률(%)"] = premium_pct

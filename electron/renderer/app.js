@@ -735,7 +735,7 @@ async function runWeeklyMezz() {
 
   state.weeklyMezzRunning = true;
   $("#runWeeklyMezz").disabled = true;
-  addLog(`Weekly Mezz 수집을 시작합니다: ${fromDate} ~ ${toDate}`);
+  addLog(`주간 메자닌 발행현황 수집을 시작합니다: ${fromDate} ~ ${toDate}`);
   try {
     const result = await window.maxawon.weeklyMezzCollect({
       fromDate: compactDate(fromDate),
@@ -744,7 +744,7 @@ async function runWeeklyMezz() {
       lastReportValue,
     });
     const summary = result.summary || {};
-    addLog(`Weekly Mezz 엑셀을 저장했습니다: ${result.outputPath}`);
+    addLog(`주간 메자닌 발행현황 엑셀을 저장했습니다: ${result.outputPath}`);
     addLog(`검색 ${summary.total_count || 0}건, 필터 ${summary.filtered_count || 0}건, 저장 ${summary.exported_count || 0}건`);
     if (result.rawPath) addLog(`원본 JSON을 저장했습니다: ${result.rawPath}`);
   } catch (error) {

@@ -14,7 +14,7 @@ at runtime.
 ## Runtime prerequisite
 
 Development runs use the developer's installed Python 3 and checks required
-Python packages before starting Cretop capture, Weekly Mezz collection, or
+Python packages before starting Cretop capture, 주간 메자닌 발행현황 collection, or
 network logging. If a package is missing, the app reports the missing module and
 asks the developer to run:
 

@@ -114,7 +114,7 @@ function bindWeeklyMezzEvents() {
     if (!selected) return;
     state.weeklyMezzOutput = selected;
     $("#weeklyMezzOutput").value = selected;
-    addLog(`Weekly Mezz 저장 파일을 변경했습니다: ${selected}`);
+    addLog(`주간 메자닌 발행현황 저장 파일을 변경했습니다: ${selected}`);
   });
 
   $("#runWeeklyMezz").addEventListener("click", async () => {

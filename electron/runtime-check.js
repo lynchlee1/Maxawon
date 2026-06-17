@@ -2,9 +2,9 @@ const { spawnSync } = require("child_process");
 
 const REQUIRED_PYTHON_MODULES = [
   { module: "playwright", packageName: "playwright", feature: "Cretop 화면 연결과 테이블 저장" },
-  { module: "bs4", packageName: "beautifulsoup4", feature: "Weekly Mezz HTML 파싱" },
-  { module: "lxml", packageName: "lxml", feature: "Weekly Mezz HTML/XML 파싱" },
-  { module: "openpyxl", packageName: "openpyxl", feature: "Weekly Mezz 엑셀 생성" },
+  { module: "bs4", packageName: "beautifulsoup4", feature: "주간 메자닌 발행현황 HTML 파싱" },
+  { module: "lxml", packageName: "lxml", feature: "주간 메자닌 발행현황 HTML/XML 파싱" },
+  { module: "openpyxl", packageName: "openpyxl", feature: "주간 메자닌 발행현황 엑셀 생성" },
   { module: "requests", packageName: "requests", feature: "KIND/DART 데이터 수집" },
 ];
 
