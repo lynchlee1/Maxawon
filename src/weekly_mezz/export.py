@@ -9,7 +9,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
-from participant_parser import fundname_to_corpname_safe
 from weekly_mezz.dart import fetch_previous_family_rcept_no
 from weekly_mezz.parser import parse_report_document
 
@@ -32,6 +31,7 @@ SHARE_TYPE_SUFFIX_PATTERN = re.compile(
 )
 CORP_DESIGNATOR_PATTERN = re.compile(r"\(주\)|㈜|주식회사")
 MATCH_NORMALIZE_PATTERN = re.compile(r"[^0-9A-Za-z가-힣]")
+TRUSTEE_NAME_PATTERN = re.compile(r"신탁|수탁")
 
 ISSUER_MARKET_LABELS = {
     "Y": "코스피",
@@ -311,9 +311,34 @@ def calculate_maturity_term_text(issue_date, maturity_date) -> str:
 
 
 def clean_investor_name(value) -> str:
-    text = fundname_to_corpname_safe(str(value or "").strip())
-    text = CORP_DESIGNATOR_PATTERN.sub("", text)
-    return re.sub(r"\s+", " ", text).strip(" ,")
+    return re.sub(r"\s+", " ", str(value or "")).strip(" ,")
+
+
+def build_investor_entity_map(parsed: dict) -> dict[str, list[str]]:
+    entity_map = {}
+    for row in parsed.get("발행대상자세부엔티티") or []:
+        if not isinstance(row, (list, tuple)) or not row:
+            continue
+        name = clean_investor_name(row[0])
+        if not name:
+            continue
+        related = []
+        for value in row[1:]:
+            related_name = clean_investor_name(value)
+            if related_name and related_name != "-" and related_name != name and related_name not in related:
+                related.append(related_name)
+        if related:
+            entity_map[normalize_company_name_for_match(name)] = related
+    return entity_map
+
+
+def display_investor_name(name: str, entity_map: dict[str, list[str]]) -> str:
+    if not TRUSTEE_NAME_PATTERN.search(name):
+        return name
+    related = entity_map.get(normalize_company_name_for_match(name)) or []
+    if not related:
+        return name
+    return f"{name}({', '.join(related)})"
 
 
 def format_investor_amount(amount) -> str:
@@ -368,13 +393,14 @@ def serialize_option_schedule(schedules) -> str:
 
 
 def format_investors_text(parsed: dict) -> str:
+    entity_map = build_investor_entity_map(parsed)
     issue_targets = parsed.get("발행대상자") or []
     if issue_targets:
         formatted_targets = []
         for row in issue_targets:
             if not isinstance(row, (list, tuple)) or not row:
                 continue
-            name = clean_investor_name(row[0])
+            name = display_investor_name(clean_investor_name(row[0]), entity_map)
             amount_text = format_investor_amount(row[1] if len(row) > 1 else None)
             if not name:
                 continue
@@ -388,7 +414,7 @@ def format_investors_text(parsed: dict) -> str:
     if investor_rows:
         formatted = []
         for investor in investor_rows:
-            name = clean_investor_name(investor.get("name"))
+            name = display_investor_name(clean_investor_name(investor.get("name")), entity_map)
             amount_text = format_investor_amount(investor.get("amount"))
             if not name:
                 continue

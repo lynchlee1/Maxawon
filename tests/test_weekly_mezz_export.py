@@ -69,7 +69,7 @@ def test_weekly_mezz_export_uses_requested_columns_and_formats():
     assert sheet["P2"].value == "/ 2.5%"
     assert sheet["R2"].value == "70.0%"
     assert sheet["S2"].value == "시가하락"
-    assert sheet["T2"].value == "투자자A 1,000, 투자자B 250"
+    assert sheet["T2"].value == "(주)투자자A 1,000, 주식회사 투자자B 250"
     assert sheet["X2"].value == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
     assert sheet["X2"].hyperlink.target == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
     assert sheet["X2"].style == "Hyperlink"
@@ -100,6 +100,20 @@ def test_weekly_mezz_export_prefers_full_decision_method_for_premium_text():
     )
 
     assert row["premium_text"] == "가중산술평균주가를 기준으로 긴 산식 전체를 보존하고 기준주가의 110%로 산정한다"
+
+
+def test_weekly_mezz_export_adds_real_parties_for_trustee_investor_names():
+    row = build_export_row(
+        {"rcept_no": "20260115000001", "report_nm": "전환사채권발행결정"},
+        {
+            "발행대상자": [["한국투자증권 주식회사(수탁자)", 10000000000]],
+            "발행대상자세부엔티티": [
+                ["한국투자증권 주식회사(수탁자)", "엔에이치투자파트너스 주식회사", "주식회사 실제투자자"]
+            ],
+        },
+    )
+
+    assert row["investors_text"] == "한국투자증권 주식회사(수탁자)(엔에이치투자파트너스 주식회사, 주식회사 실제투자자) 100"
 
 
 def test_weekly_mezz_export_saves_only_excel(tmp_path):
