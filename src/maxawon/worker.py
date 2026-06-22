@@ -10,7 +10,7 @@ from maxawon.table_capture import CapturedTable, capture_current_maxawon_table_s
 from weekly_mezz.cli import collect_and_export, parse_yyyymmdd
 
 
-REQUIRED_MODULES = ["playwright", "bs4", "lxml", "openpyxl", "requests"]
+REQUIRED_MODULES = ["playwright", "bs4", "FinanceDataReader", "lxml", "openpyxl", "requests"]
 
 
 def print_json(payload: dict) -> None:

@@ -1,6 +1,6 @@
 {
   "name": "maxawon-desktop",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "private": true,
   "description": "Modern Electron desktop UI for Maxawon",
   "main": "electron/main.js",

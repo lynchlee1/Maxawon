@@ -47,6 +47,7 @@ SET_PATH_RE = re.compile(
     r"'(?P<doc_server_path>[^']*)'\s*,\s*'(?P<form_upclss_cd>[^']*)'\s*,\s*"
     r"'(?P<snd_loc_tp_cd>[^']*)'\s*\)"
 )
+VIEWER_STOCK_CODE_RE = re.compile(r"<h1[^>]*>\s*[^<]*\((?P<stock_code>[0-9A-Za-z]{6})\)\s*</h1>", re.IGNORECASE)
 
 
 class RateLimiter:
@@ -212,6 +213,13 @@ def _search_content_doc_path(markup: bytes | str) -> str:
     return match.group("doc_loc_path").strip()
 
 
+def parse_viewer_stock_code(markup: bytes | str) -> str:
+    if isinstance(markup, bytes):
+        markup = markup.decode("utf-8", errors="replace")
+    match = VIEWER_STOCK_CODE_RE.search(markup or "")
+    return match.group("stock_code").upper() if match else ""
+
+
 def _title_flags(title: str) -> list[str]:
     flags = []
     for match in TITLE_FLAG_RE.finditer(title or ""):
@@ -357,6 +365,7 @@ def _download_report_html(report: dict, *, html_dir: Path, content_dir: Path, li
         "viewer_html_path": str(viewer_path),
         "html_path": str(content_path if content_path.exists() else viewer_path),
         "doc_no": doc_no,
+        "stock_code": parse_viewer_stock_code(viewer_content) or report.get("stock_code", ""),
     }
 
 

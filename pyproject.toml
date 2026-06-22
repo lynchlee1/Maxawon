@@ -4,9 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "maxawon"
-version = "2.6.0"
+version = "2.6.1"
 dependencies = [
     "beautifulsoup4>=4.12",
+    "finance-datareader>=0.9.96",
     "lxml>=5.2",
     "openpyxl>=3.1.5",
     "playwright>=1.45",

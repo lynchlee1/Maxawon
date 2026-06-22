@@ -49,7 +49,7 @@ COLUMN_SPECS = [
     {"header": "교환대상 기업명", "key": "target_company_name", "width": 20, "align": "left", "margin": True},
     {"header": "종류", "key": "security_type", "width": 7, "align": "center"},
     {"header": "벤처여부", "key": "venture_blank", "width": 10, "align": "center"},
-    {"header": "시가총액", "key": "market_cap_blank", "width": 12, "align": "right", "margin": True},
+    {"header": "시가총액", "key": "market_cap_eok", "width": 12, "align": "right", "margin": True},
     {"header": "발행금액", "key": "issue_amount_eok", "width": 12, "align": "right", "margin": True},
     {"header": "행사가액", "key": "strike_price", "width": 12, "align": "right", "margin": True},
     {"header": "할증률", "key": "premium_text", "width": 34, "align": "left", "margin": True},
@@ -68,6 +68,7 @@ COLUMN_SPECS = [
 ]
 
 NUMERIC_KEYS = {
+    "market_cap_eok",
     "issue_amount_eok",
     "strike_price",
     "coupon_rate_pct",
@@ -81,7 +82,7 @@ NUMERIC_KEYS = {
     "refixing_price_won",
     "refixing_floor_pct",
 }
-INTEGER_FORMAT_KEYS = {"issue_amount_eok", "strike_price"}
+INTEGER_FORMAT_KEYS = {"market_cap_eok", "issue_amount_eok", "strike_price"}
 DECIMAL_FORMAT_KEYS = NUMERIC_KEYS - INTEGER_FORMAT_KEYS
 
 
@@ -132,6 +133,11 @@ def normalize_stock_code(stock_code) -> str:
     return value[1:] if value.startswith("A") else value
 
 
+def normalize_stock_code_key(stock_code) -> str:
+    value = normalize_stock_code(stock_code)
+    return value.zfill(6) if value.isdigit() else value
+
+
 def clean_target_stock_name(value) -> str:
     text = (value or "").strip()
     if not text or text == "-":
@@ -161,6 +167,48 @@ def build_company_stock_code_map(corp_code_entries: list[dict]) -> dict:
         if normalized and normalized not in mapping:
             mapping[normalized] = stock_code
     return mapping
+
+
+def parse_market_cap_value(value):
+    if value in (None, "", "-"):
+        return None
+    if isinstance(value, str):
+        value = value.strip().replace(",", "")
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def fetch_market_cap_map(progress_callback=None) -> dict:
+    try:
+        import FinanceDataReader as fdr
+    except ImportError as exc:
+        if progress_callback:
+            progress_callback(f"FinanceDataReader import failed; market caps will stay blank: {exc}")
+        return {}
+
+    try:
+        listing = fdr.StockListing("KRX")
+    except Exception as exc:
+        if progress_callback:
+            progress_callback(f"FinanceDataReader KRX listing failed; market caps will stay blank: {exc}")
+        return {}
+
+    code_column = next((column for column in ("Code", "Symbol", "종목코드") if column in listing.columns), "")
+    market_cap_column = next((column for column in ("Marcap", "MarketCap", "시가총액") if column in listing.columns), "")
+    if not code_column or not market_cap_column:
+        if progress_callback:
+            progress_callback("FinanceDataReader KRX listing did not include Code/Marcap columns; market caps will stay blank")
+        return {}
+
+    market_caps = {}
+    for _, item in listing.iterrows():
+        code = normalize_stock_code_key(item.get(code_column))
+        market_cap_won = parse_market_cap_value(item.get(market_cap_column))
+        if code and market_cap_won is not None:
+            market_caps[code] = round(market_cap_won / 100_000_000)
+    return market_caps
 
 
 def infer_security_type(report_nm, parsed_type) -> str:
@@ -377,15 +425,19 @@ def build_export_row(
     report: dict,
     parsed: dict,
     company_stock_code_map: dict | None = None,
+    market_cap_map: dict | None = None,
     previous_rcept_no: str = "",
 ) -> dict:
     company_stock_code_map = company_stock_code_map or {}
+    market_cap_map = market_cap_map or {}
     issue_date = parsed.get("납입일") or ""
     security_type = infer_security_type(report.get("report_nm"), parsed.get("종류"))
     target_company_name = clean_target_stock_name(parsed.get("대상주식"))
     if not target_company_name and security_type in {"CB", "BW"}:
         target_company_name = clean_target_stock_name(report.get("corp_name"))
     target_stock_code = company_stock_code_map.get(normalize_company_name_for_match(target_company_name), "")
+    issuer_stock_code = normalize_stock_code_key(report.get("stock_code"))
+    market_cap_eok = market_cap_map.get(issuer_stock_code)
     put_schedules = parsed.get("PUT옵션일정표") or parsed.get("_PUT옵션일정표상세") or []
     call_schedules = parsed.get("CALL옵션일정표") or parsed.get("_CALL옵션일정표상세") or []
     filing_date = extract_filing_date_from_rcept_no(report.get("rcept_no"))
@@ -410,7 +462,7 @@ def build_export_row(
         "report_header": extract_report_header(report.get("report_nm")),
         "issuer_company_name": report.get("corp_name", ""),
         "issuer_market": ISSUER_MARKET_LABELS.get(report.get("corp_cls"), report.get("corp_cls", "")),
-        "issuer_stock_code": format_issuer_stock_code(report.get("stock_code")),
+        "issuer_stock_code": format_issuer_stock_code(issuer_stock_code),
         "target_company_name": target_company_name,
         "target_stock_code": format_issuer_stock_code(target_stock_code),
         "round": parsed.get("회차", ""),
@@ -443,7 +495,7 @@ def build_export_row(
         "refixing_reason": refixing_reason,
         "investors_text": format_investors_text(parsed),
         "venture_blank": "",
-        "market_cap_blank": "",
+        "market_cap_eok": market_cap_eok,
         "call_blank": "",
         "sector_blank": "",
         "internal_review": "",
@@ -458,6 +510,7 @@ def build_export_row(
 def build_export_rows_with_audit(data: dict, progress_callback=None) -> tuple:
     reports = filter_reports(data.get("list", []))
     company_stock_code_map = {}
+    market_cap_map = fetch_market_cap_map(progress_callback=progress_callback) if reports else {}
 
     rows = []
     audit_rows = []
@@ -493,6 +546,7 @@ def build_export_rows_with_audit(data: dict, progress_callback=None) -> tuple:
             report,
             parsed,
             company_stock_code_map=company_stock_code_map,
+            market_cap_map=market_cap_map,
             previous_rcept_no=previous_rcept_no,
         )
         rows.append(export_row)
