@@ -1,0 +1,641 @@
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+<section class="scrarea type-00">
+	<table class="list type-00 mt10" summary="번호, 시간, 회사명, 공시제목, 제출인, 차트/주가">
+		<caption>목록</caption>
+		<colgroup>
+			<col width="8%" />
+			<col width="17%" />
+			<col width="21%" />
+			<col width="*" />
+			<col width="15%" />
+
+			<col width="9%" />
+		
+		</colgroup>
+		<thead>
+			<tr class="first" id="title-contents">
+			</tr>
+		</thead>
+		<tbody>
+			
+			
+			
+			
+				
+					
+			<tr class="first">
+				<td class="first txc">27</td>
+				<td class="txc">2026-06-26 15:58</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('07461'); return false;" title='이엔플러스'> 이엔플러스</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000779','')" title='전환사채권발행결정'><font color='#FF8040'>[정정]</font>전환사채권발행결정</a></td>
+				<td>이엔플러스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('07461');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('07461');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">26</td>
+				<td class="txc">2026-06-26 15:10</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('20047'); return false;" title='에이팩트'> 에이팩트</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000656','')" title='전환사채권발행결정(제5회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제5회차)</a></td>
+				<td>에이팩트</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('20047');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('20047');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">25</td>
+				<td class="txc">2026-06-26 14:26</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('12712'); return false;" title='제이에스링크'> 제이에스링크</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000552','')" title='전환사채권발행결정(제18회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제18회차)</a></td>
+				<td>제이에스링크</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('12712');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('12712');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">24</td>
+				<td class="txc">2026-06-26 10:56</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('00299'); return false;" title='금호건설'> 금호건설</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000324','')" title='자본으로 인정되는 채무증권 발행결정'>자본으로 인정되는 채무증권 발행결정</a></td>
+				<td>금호건설</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('00299');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('00299');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">23</td>
+				<td class="txc">2026-06-26 07:46</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('00746'); return false;" title='에이프로젠'> 에이프로젠</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000019','')" title='전환사채권발행결정(제11회차)(자회사의 주요경영사항)'>전환사채권발행결정(제11회차)(자회사의 주요경영사항)</a></td>
+				<td>에이프로젠</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('00746');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('00746');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">22</td>
+				<td class="txc">2026-06-26 07:46</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('00746'); return false;" title='에이프로젠'> 에이프로젠</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000018','')" title='전환사채권발행결정(제10회차)(자회사의 주요경영사항)'>전환사채권발행결정(제10회차)(자회사의 주요경영사항)</a></td>
+				<td>에이프로젠</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('00746');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('00746');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">21</td>
+				<td class="txc">2026-06-26 07:38</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('14108'); return false;" title='리가켐바이오'> 리가켐바이오</a> <img src='/images/common/icn_t_q150.gif' class='vmiddle legend' alt='KOSDAQ150'> <img src='/images/common/icn_t_x300.gif' class='vmiddle legend' alt='KRX300'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000006','')" title='전환사채권발행결정(제6회차)'>전환사채권발행결정(제6회차)</a></td>
+				<td>리가켐 바이오사이언스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('14108');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('14108');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">20</td>
+				<td class="txc">2026-06-26 07:38</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('27052'); return false;" title='앱튼'> 앱튼</a> <img src='/images/common/icn_t_hwan.gif' class='vmiddle legend' alt='투자주의환기종목'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000003','')" title='전환사채권발행결정(제10회차)'>전환사채권발행결정(제10회차)</a></td>
+				<td>앱튼</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('27052');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('27052');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">19</td>
+				<td class="txc">2026-06-26 07:38</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('27052'); return false;" title='앱튼'> 앱튼</a> <img src='/images/common/icn_t_hwan.gif' class='vmiddle legend' alt='투자주의환기종목'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260626000002','')" title='전환사채권발행결정(제11회차)'>전환사채권발행결정(제11회차)</a></td>
+				<td>앱튼</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('27052');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('27052');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">18</td>
+				<td class="txc">2026-06-25 17:25</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('02411'); return false;" title='기업은행'> 기업은행</a> <img src='/images/common/icn_t_k200.gif' class='vmiddle legend' alt='KOSPI200'> <img src='/images/common/icn_t_x300.gif' class='vmiddle legend' alt='KRX300'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260625000791','')" title='상각형 조건부자본증권 발행결정'>상각형 조건부자본증권 발행결정</a></td>
+				<td>중소기업은행</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('02411');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('02411');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">17</td>
+				<td class="txc">2026-06-25 15:48</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('07195'); return false;" title='코아스'> 코아스</a> <img src='/images/common/icn_t_kwan.gif' class='vmiddle legend' alt='관리종목'/> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260625000517','')" title='전환사채권발행결정'><font color='#FF8040'>[정정]</font>전환사채권발행결정</a></td>
+				<td>코아스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('07195');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('07195');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">16</td>
+				<td class="txc">2026-06-24 16:53</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('04310'); return false;" title='알파AI'> 알파AI</a> <img src='/images/common/icn_t_kwan.gif' class='vmiddle legend' alt='관리종목'/> <img src='/images/common/icn_t_hwan.gif' class='vmiddle legend' alt='투자주의환기종목'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260624000792','')" title='전환사채권발행결정(제19회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제19회차)</a></td>
+				<td>알파에이아이</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('04310');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('04310');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">15</td>
+				<td class="txc">2026-06-24 16:53</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('04310'); return false;" title='알파AI'> 알파AI</a> <img src='/images/common/icn_t_kwan.gif' class='vmiddle legend' alt='관리종목'/> <img src='/images/common/icn_t_hwan.gif' class='vmiddle legend' alt='투자주의환기종목'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260624000773','')" title='전환사채권발행결정(제18회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제18회차)</a></td>
+				<td>알파에이아이</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('04310');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('04310');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">14</td>
+				<td class="txc">2026-06-24 15:34</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('26732'); return false;" title='나인테크'> 나인테크</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260624000579','')" title='전환사채권발행결정(제4회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제4회차)</a></td>
+				<td>나인테크</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('26732');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('26732');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">13</td>
+				<td class="txc">2026-06-24 15:24</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('26732'); return false;" title='나인테크'> 나인테크</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260624000580','')" title='자본으로 인정되는 채무증권 발행결정'><font color='#FF8040'>[정정]</font>자본으로 인정되는 채무증권 발행결정</a></td>
+				<td>나인테크</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('26732');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('26732');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">12</td>
+				<td class="txc">2026-06-23 19:31</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('00746'); return false;" title='에이프로젠'> 에이프로젠</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000827','')" title='전환사채권발행결정(자회사의 주요경영사항)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(자회사의 주요경영사항)</a></td>
+				<td>에이프로젠</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('00746');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('00746');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">11</td>
+				<td class="txc">2026-06-23 19:30</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('00306'); return false;" title='에이프로젠바이오로직스'> 에이프로젠바이오로직스</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000817','')" title='전환사채권발행결정'><font color='#FF8040'>[정정]</font>전환사채권발행결정</a></td>
+				<td>에이프로젠바이오로직스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('00306');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('00306');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">10</td>
+				<td class="txc">2026-06-23 18:20</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('10237'); return false;" title='케이옥션'> 케이옥션</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000795','')" title='전환사채권발행결정(제1회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제1회차)</a></td>
+				<td>케이옥션</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('10237');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('10237');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">9</td>
+				<td class="txc">2026-06-23 18:04</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('09669'); return false;" title='에이루트'> 에이루트</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000782','')" title='전환사채권발행결정(제18회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제18회차)</a></td>
+				<td>에이루트</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('09669');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('09669');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">8</td>
+				<td class="txc">2026-06-23 15:50</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('09181'); return false;" title='트리니티항공'> 트리니티항공</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000486','')" title='자본으로 인정되는 채무증권 발행결정'><font color='#FF8040'>[정정]</font>자본으로 인정되는 채무증권 발행결정</a></td>
+				<td>트리니티항공</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('09181');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('09181');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">7</td>
+				<td class="txc">2026-06-23 09:45</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('12712'); return false;" title='제이에스링크'> 제이에스링크</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000132','')" title='전환사채권발행결정(제18회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제18회차) <img src='/images/common/icn_t_jung.gif' class='vmiddle legend' alt='해당보고서 이후에 정정된 보고서 있음' /></a></td>
+				<td>제이에스링크</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('12712');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('12712');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">6</td>
+				<td class="txc">2026-06-23 09:41</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('12712'); return false;" title='제이에스링크'> 제이에스링크</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260623000129','')" title='전환사채권발행결정(제17회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제17회차)</a></td>
+				<td>제이에스링크</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('12712');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('12712');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">5</td>
+				<td class="txc">2026-06-22 18:01</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('02344'); return false;" title='제이스코홀딩스'> 제이스코홀딩스</a> <img src='/images/common/icn_t_kwan.gif' class='vmiddle legend' alt='관리종목'/> <img src='/images/common/icn_t_hwan.gif' class='vmiddle legend' alt='투자주의환기종목'> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260622000828','')" title='전환사채권발행결정(제4회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제4회차)</a></td>
+				<td>제이스코홀딩스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('02344');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('02344');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">4</td>
+				<td class="txc">2026-06-22 17:34</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('22331'); return false;" title='사토시홀딩스'> 사토시홀딩스</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260622000812','')" title='전환사채권발행결정(제13회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제13회차)</a></td>
+				<td>사토시홀딩스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('22331');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('22331');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">3</td>
+				<td class="txc">2026-06-22 17:23</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_yu.gif' class='vmiddle legend' alt='유가증권'> <a id="companysum" href="#companysum" onclick="companysummary_open('09279'); return false;" title='넥스틸'> 넥스틸</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260622000742','')" title='전환사채권발행결정'>전환사채권발행결정</a></td>
+				<td>넥스틸</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('09279');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('09279');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">2</td>
+				<td class="txc">2026-06-22 17:13</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('33497'); return false;" title='프레스티지바이오로직스'> 프레스티지바이오로직스</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260622000732','')" title='전환사채권발행결정(제3회차)'><font color='#FF8040'>[정정]</font>전환사채권발행결정(제3회차)</a></td>
+				<td>프레스티지바이오로직스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('33497');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('33497');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+			<tr >
+				<td class="first txc">1</td>
+				<td class="txc">2026-06-22 16:37</td>
+			 
+				
+				
+					<td><img src='/images/common/icn_t_ko.gif' class='vmiddle legend' alt='코스닥'> <a id="companysum" href="#companysum" onclick="companysummary_open('22331'); return false;" title='사토시홀딩스'> 사토시홀딩스</a> </td>
+				
+			
+				<td><a href="#viewer" onclick="openDisclsViewer('20260622000637','')" title='전환사채권발행결정(제13회차)'>전환사채권발행결정(제13회차) <img src='/images/common/icn_t_jung.gif' class='vmiddle legend' alt='해당보고서 이후에 정정된 보고서 있음' /></a></td>
+				<td>사토시홀딩스</td>
+	
+				<td class="txc">
+				
+					<a href="#" title="공시차트" class="btn ico chart-00" onclick="openDisclsChart('22331');return false;"><span>공시차트</span></a>
+					<a href="#" title="주가차트" class="btn ico chart-01" onclick="fnPopStockPrices('22331');return false;"><span>주가차트</span></a>
+				
+				</td>
+			
+			</tr>
+					
+				
+				
+			
+		</tbody>
+	</table>
+</section>
+
+<!-- 페이징 START -->
+<section class="paging-group">
+	<div class='paging type-00'><a href='#prevPage10' class='pprev' onclick='return false;'><span>이전10개 페이지</span></a><a href='#prevPage' class='prev' onclick='return false;'><span>이전 페이지</span></a>
+<a href='#page_link_1' class='active' onclick='return false;'>1</a>
+<a href='#nextPage' class='next' onclick='return false;'><span>다음 페이지</span></a><a href='#nextPage10' class='nnext' onclick='return false;'><span>다음10개 페이지</span></a></div><div class="info type-00">
+전체 <em>27</em>건 : <strong>1</strong>/1&nbsp;&nbsp;&nbsp;
+<select id='currentPageSize' name='currentPageSize'>
+<option value='15'  >15건</option>
+<option value='30'  >30건</option>
+<option value='50'  >50건</option>
+<option value='100' selected='selected'>100건</option>
+</select>&nbsp;&nbsp;<a href='#' onclick="fnSearch1();return false;" class='btn-sprite btn-go vmiddle' title='GO'><span>GO</span></a>
+</div>
+</section>
+<!-- 페이징 END -->
+
+
+
+
+<script type="text/JavaScript">
+$(document).ready(function(){
+	var svrGubun = "real2";
+	if( svrGubun.indexOf("dr") >= 0 ){
+		fn_InitTitle("번호,시간,회사명,공시제목,제출인", "false,true,true,true,true");
+	} else {
+		fn_InitTitle("번호,시간,회사명,공시제목,제출인,차트/주가", "false,true,true,true,true,false");
+	}
+});
+</script>

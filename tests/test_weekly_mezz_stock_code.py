@@ -25,3 +25,22 @@ def test_export_formats_issuer_stock_code_and_market_cap():
 
     assert row["issuer_stock_code"] == "A005930"
     assert row["market_cap_eok"] == 5_000_000
+
+
+def test_matches_mezzanine_title_filters_subsidiary():
+    from weekly_mezz.kind import _matches_mezzanine_title
+    
+    assert _matches_mezzanine_title({"report_nm": "전환사채권발행결정"}) is True
+    assert _matches_mezzanine_title({"report_nm": "자회사의 주요경영사항(전환사채권발행결정)"}) is False
+    assert _matches_mezzanine_title({"report_nm": "자회사의주요경영사항(전환사채권발행결정)"}) is False
+    assert _matches_mezzanine_title({"report_nm": "자회사의  주요경영사항 (전환사채권발행결정)"}) is False
+
+
+def test_market_to_corp_cls_custom_labels():
+    from weekly_mezz.kind import _market_to_corp_cls
+    
+    assert _market_to_corp_cls("유") == "Y"
+    assert _market_to_corp_cls("코") == "K"
+    assert _market_to_corp_cls("유가") == "Y"
+    assert _market_to_corp_cls("코스닥") == "K"
+    assert _market_to_corp_cls("코넥스") == "N"

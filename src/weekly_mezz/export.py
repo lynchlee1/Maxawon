@@ -21,7 +21,8 @@ ENABLE_AUDIT_JSON = False
 DEFAULT_PARSE_WORKERS = 4
 
 HEADER_FILL = PatternFill(fill_type="solid", fgColor="00D084")
-HEADER_FONT = Font(bold=True, color="06110B")
+HEADER_FONT = Font(bold=True, color="06110B", size=9)
+BODY_FONT = Font(size=9)
 BORDER_SIDE = Side(style="thin", color="263244")
 HEADER_BORDER = Border(left=BORDER_SIDE, right=BORDER_SIDE, top=BORDER_SIDE, bottom=BORDER_SIDE)
 BODY_BORDER = Border(left=BORDER_SIDE, right=BORDER_SIDE, top=BORDER_SIDE, bottom=BORDER_SIDE)
@@ -48,6 +49,7 @@ COLUMN_SPECS = [
     {"header": "공시일", "key": "filing_date_display", "width": 12, "align": "center"},
     {"header": "납입일", "key": "issue_date_display", "width": 12, "align": "center"},
     {"header": "발행사 기업명", "key": "issuer_company_name", "width": 20, "align": "left", "margin": True},
+    {"header": "상장시장", "key": "issuer_market", "width": 10, "align": "center"},
     {"header": "교환대상 기업명", "key": "target_company_name", "width": 20, "align": "left", "margin": True},
     {"header": "종류", "key": "security_type", "width": 7, "align": "center"},
     {"header": "벤처여부", "key": "venture_blank", "width": 10, "align": "center"},
@@ -692,6 +694,8 @@ def _write_summary_sheet(workbook, summary: dict) -> None:
 
 
 def _write_report_sheet(sheet, rows: list[dict]) -> None:
+    sheet.page_margins.left = 0.1
+    sheet.page_margins.right = 0.1
     _write_header(sheet)
     _write_rows(sheet, rows)
     sheet.freeze_panes = "A2"
@@ -745,3 +749,8 @@ def _style_body_cell(cell, spec: dict) -> None:
     elif key == "disclosure_url" and cell.value != BLANK_CELL_VALUE:
         cell.hyperlink = cell.value
         cell.style = "Hyperlink"
+
+    if cell.style == "Hyperlink":
+        cell.font = Font(size=9, color="0563C1", underline="single")
+    else:
+        cell.font = BODY_FONT

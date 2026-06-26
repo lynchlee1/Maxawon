@@ -38,6 +38,7 @@ def test_weekly_mezz_export_uses_requested_columns_and_formats():
         "공시일",
         "납입일",
         "발행사 기업명",
+        "상장시장",
         "교환대상 기업명",
         "종류",
         "벤처여부",
@@ -58,34 +59,35 @@ def test_weekly_mezz_export_uses_requested_columns_and_formats():
         "주관",
         "URL",
     ]
-    assert sheet.max_column == 24
+    assert sheet.max_column == 25
     assert sheet.freeze_panes == "A2"
     assert sheet["B2"].value == "26-01-15"
     assert sheet["C2"].value == "26-01-15"
     assert sheet["D2"].value == "26-01-20"
-    assert sheet["M2"].value == "3.0년"
-    assert sheet["N2"].value == "/ "
-    assert sheet["O2"].value == "0.0%"
-    assert sheet["P2"].value == "/ 2.5%"
-    assert sheet["R2"].value == "70.0%"
-    assert sheet["S2"].value == "시가하락"
-    assert sheet["T2"].value == "(주)투자자A 1,000, 주식회사 투자자B 250"
-    assert sheet["X2"].value == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
-    assert sheet["X2"].hyperlink.target == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
-    assert sheet["X2"].style == "Hyperlink"
-    assert sheet["H2"].value == "-"
-    assert sheet["Q2"].value == "-"
-    assert sheet["U2"].value == "-"
+    assert sheet["F2"].value == "코스닥"
+    assert sheet["N2"].value == "3.0년"
+    assert sheet["O2"].value == "/ "
+    assert sheet["P2"].value == "0.0%"
+    assert sheet["Q2"].value == "/ 2.5%"
+    assert sheet["S2"].value == "70.0%"
+    assert sheet["T2"].value == "시가하락"
+    assert sheet["U2"].value == "(주)투자자A 1,000, 주식회사 투자자B 250"
+    assert sheet["Y2"].value == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
+    assert sheet["Y2"].hyperlink.target == "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260115000001"
+    assert sheet["Y2"].style == "Hyperlink"
+    assert sheet["I2"].value == "-"
+    assert sheet["R2"].value == "-"
     assert sheet["V2"].value == "-"
     assert sheet["W2"].value == "-"
+    assert sheet["X2"].value == "-"
     assert sheet["E2"].alignment.horizontal == "left"
     assert sheet["E2"].alignment.indent == 1
-    assert sheet["J2"].alignment.horizontal == "right"
-    assert sheet["J2"].alignment.indent == 1
-    assert sheet["M2"].alignment.indent == 0
+    assert sheet["K2"].alignment.horizontal == "right"
+    assert sheet["K2"].alignment.indent == 1
     assert sheet["N2"].alignment.indent == 0
     assert sheet["O2"].alignment.indent == 0
     assert sheet["P2"].alignment.indent == 0
+    assert sheet["Q2"].alignment.indent == 0
 
 
 def test_weekly_mezz_export_prefers_full_decision_method_for_premium_text():

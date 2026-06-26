@@ -293,9 +293,9 @@ def _parse_result_rows(markup: bytes | str) -> list[dict]:
 
 
 def _market_to_corp_cls(label: str) -> str:
-    if "유가" in label or "코스피" in label:
+    if label == "유" or "유가" in label or "코스피" in label:
         return "Y"
-    if "코스닥" in label:
+    if label == "코" or "코스닥" in label:
         return "K"
     if "코넥스" in label:
         return "N"
@@ -304,6 +304,8 @@ def _market_to_corp_cls(label: str) -> str:
 
 def _matches_mezzanine_title(report: dict) -> bool:
     title = report.get("report_nm", "")
+    if "자회사의주요경영사항" in _remove_whitespace(title):
+        return False
     title_candidates = {
         _remove_whitespace(title),
         _remove_whitespace(_clean_search_text(title)),
